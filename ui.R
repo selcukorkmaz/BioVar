@@ -214,7 +214,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Data upload",
                navbarPage(
                  title = '',
-                 tabPanel('Data', dataTableOutput('RawData'))
+                 tabPanel('Data', DT::dataTableOutput('RawData'))
                )
       ),
       

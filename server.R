@@ -6,9 +6,8 @@
 # 
 #    http://shiny.rstudio.com/
 #
-
-library(shiny)
 library(DT)
+library(shiny)
 library(lme4)
 library(multcomp)
 library(nlme)
@@ -89,7 +88,7 @@ shinyServer(function(input, output, session) {
     
   })
    
-  output$RawData <- renderDataTable(
+  output$RawData <- DT::renderDT::datatable(
     
         dataAnalysis(), options = list(iDisplayLength = 10)
     
@@ -135,33 +134,33 @@ shinyServer(function(input, output, session) {
   }) 
   
   
-  ### Outlier results: Step1 ##########
+  ### Step1 Outlier results ##########
   
-  output$outlierStep1 <- DT::renderDataTable(server = FALSE, {
+  output$outlierStep1 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
   })
   
-  ### Outlier results: Step2 ##########
+  ### Step2 Outlier results ##########
   
-  output$outlierStep2 <- DT::renderDataTable(server = FALSE, {
+  output$outlierStep2 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
   })
   
-  ### Outlier results: Step3 ##########
+  ### Step3 Outlier results ##########
   
-  output$outlierStep3 <- DT::renderDataTable(server = FALSE, {
+  output$outlierStep3 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(outlierResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(outlierResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
   })
   
@@ -177,21 +176,21 @@ shinyServer(function(input, output, session) {
   }) 
   
   ### Normality: Step1 ##########
-  output$normalityStep1 <- DT::renderDataTable(server = FALSE, {
+  output$normalityStep1 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(normalityResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(normalityResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
   })
   
   ### Normality: Step2 ##########
   
-  output$normalityStep2 <- DT::renderDataTable(server = FALSE, {
+  output$normalityStep2 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(normalityResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(normalityResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
   })
@@ -207,11 +206,11 @@ shinyServer(function(input, output, session) {
   
   ### Homogenity ##########
   
-  output$homogenity <- DT::renderDataTable(server = FALSE, {
+  output$homogenity <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(subsetResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
   })
@@ -220,11 +219,11 @@ shinyServer(function(input, output, session) {
   
   ### t test for means ##########
   
-  output$ttest <- DT::renderDataTable(server = FALSE, {
+  output$ttest <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(subsetResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
   })
@@ -233,11 +232,11 @@ shinyServer(function(input, output, session) {
   
   ### Homogenity SIA ##########
   
-  output$homogenitySIA <- DT::renderDataTable(server = FALSE, {
+  output$homogenitySIA <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(subsetResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
   })
@@ -246,11 +245,11 @@ shinyServer(function(input, output, session) {
   
   ### ttest SIA ##########
   
-  output$ttestSIA <- DT::renderDataTable(server = FALSE, {
+  output$ttestSIA <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$run){
       
-      datatable(subsetResults()[[4]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[4]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
   })
@@ -270,75 +269,75 @@ shinyServer(function(input, output, session) {
   
   ######### All ##############
   
-  output$CVtableAll <- DT::renderDataTable(server = FALSE, {
+  output$CVtableAll <- DT::renderDT::datatable(server = FALSE, {
     
     res = analysisOfVarinceResults()
     
     if(input$run && input$showResults == "original"){
       
-      result = datatable(res$resultsAllOriginal$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllOriginal$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
     else if(input$run && input$showResults == "transformed"){
       
-      result =  datatable(res$resultsAllTransformed$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result =  DT::datatable(res$resultsAllTransformed$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
     else if(input$run && input$showResults == "transformBack"){
       
-      result = datatable(res$resultsAllTransformBack$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformBack$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
   })
   
   
-  output$CVResultsAll <- DT::renderDataTable(server = FALSE, {
+  output$CVResultsAll <- DT::renderDT::datatable(server = FALSE, {
     
     res = analysisOfVarinceResults()
     
     if(input$run && input$showResults == "original"){
       
-      result = datatable(res$resultsAllOriginal$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllOriginal$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
     else if(input$run && input$showResults == "transformed"){
       
-      result = datatable(res$resultsAllTransformed$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformed$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
     else if(input$run && input$showResults == "transformBack"){
       
-      result = datatable(res$resultsAllTransformBack$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformBack$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
   })
   
   
-  output$ErrorTableAll <- DT::renderDataTable(server = FALSE, {
+  output$ErrorTableAll <- DT::renderDT::datatable(server = FALSE, {
     
     res = analysisOfVarinceResults()
     
     if(input$run && input$showResults == "original"){
       
-      result = datatable(res$resultsAllOriginal$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllOriginal$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
     else if(input$run && input$showResults == "transformed"){
       
-      result = datatable(res$resultsAllTransformed$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformed$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
     else if(input$run && input$showResults == "transformBack"){
       
-      result = datatable(res$resultsAllTransformBack$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformBack$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
@@ -349,7 +348,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  output$CVtableGender1 <- DT::renderDataTable(server = FALSE, {
+  output$CVtableGender1 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -357,44 +356,44 @@ shinyServer(function(input, output, session) {
       
       if(input$run && input$showResults == "original"){
         
-        result =  datatable(res$resultsOriginalGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =  DT::datatable(res$resultsOriginalGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformed"){
         
-        result = datatable(res$resultsTransformedGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformedGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformBack"){
         
-        result = datatable(res$resultsTransformBackGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
     }
   })
   
   
-  output$CVResultsGender1 <- DT::renderDataTable(server = FALSE, {
+  output$CVResultsGender1 <- DT::renderDT::datatable(server = FALSE, {
     if(input$subsetAnalysis){
       res = analysisOfVarinceResults()
       
       if(input$run && input$showResults == "original"){
         
-        result = datatable(res$resultsOriginalGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsOriginalGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       else if(input$run && input$showResults == "transformed"){
         
         
-        result = datatable(res$resultsTransformedGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformedGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformBack"){
         
-        result =  datatable(res$resultsTransformBackGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =  DT::datatable(res$resultsTransformBackGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
     }
@@ -402,7 +401,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$ErrorTableGender1 <- DT::renderDataTable(server = FALSE, {
+  output$ErrorTableGender1 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -411,19 +410,19 @@ shinyServer(function(input, output, session) {
       
       if(input$run && input$showResults == "original"){
         
-        result = datatable(res$resultsOriginalGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsOriginalGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformed"){
         
-        result = datatable(res$resultsTransformedGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformedGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformBack"){
         
-        result = datatable(res$resultsTransformBackGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
     }
@@ -436,32 +435,32 @@ shinyServer(function(input, output, session) {
   
   
   
-  output$CVtableGender2 <- DT::renderDataTable(server = FALSE, {
+  output$CVtableGender2 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$subsetAnalysis){
       res = analysisOfVarinceResults()
       
       if(input$run && input$showResults == "original"){
         
-        result =  datatable(res$resultsOriginalGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =  DT::datatable(res$resultsOriginalGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformed"){
         
-        result = datatable(res$resultsTransformedGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformedGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformBack"){
         
-        result = datatable(res$resultsTransformBackGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
     }
   })
   
   
-  output$CVResultsGender2 <- DT::renderDataTable(server = FALSE, {
+  output$CVResultsGender2 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -469,26 +468,26 @@ shinyServer(function(input, output, session) {
       
       if(input$run && input$showResults == "original"){
         
-        result =  datatable(res$resultsOriginalGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =  DT::datatable(res$resultsOriginalGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformed"){
         
-        result =   datatable(res$resultsTransformedGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =   DT::datatable(res$resultsTransformedGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformBack"){
         
-        result = datatable(res$resultsTransformBackGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
     }
   })
   
   
-  output$ErrorTableGender2 <- DT::renderDataTable(server = FALSE, {
+  output$ErrorTableGender2 <- DT::renderDT::datatable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -497,19 +496,19 @@ shinyServer(function(input, output, session) {
       
       if(input$run && input$showResults == "original"){
         
-        result =  datatable(res$resultsOriginalGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =  DT::datatable(res$resultsOriginalGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformed"){
         
-        result =  datatable(res$resultsTransformedGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =  DT::datatable(res$resultsTransformedGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && input$showResults == "transformBack"){
         
-        result = datatable(res$resultsTransformBackGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
     }
   })
@@ -709,7 +708,7 @@ shinyServer(function(input, output, session) {
   
   ####### Step 0 #######
   
-  output$plotData <- DT::renderDataTable({
+  output$plotData <- DT::renderDT::datatable({
     
     
   })
@@ -910,25 +909,23 @@ shinyServer(function(input, output, session) {
   
   ###### Report ######
   
-  
   output$downloadReport <- downloadHandler(
-    filename <- function() { paste0(input$analyte,'_report.txt') },
-    content <- function(file) {
-      pdf(file)
+    filename =  'report.html',
+    contentType =  'text/html',
+    content = function(filename) {
+      library(knitr)
+      library(knitcitations)
       
-      outlierResults = outlier(data=dataAnalysis(), analyte = input$analyte, replicate = input$replicate, time = input$time, gender = input$gender, subject = input$subject)
+      if (file.exists('knitr_report.html')) file.remove('knitr_report.html')
+      if (file.exists('knitr_report.md')) file.remove('knitr_report.md')
+      htmlKnitted<-knit2html('knitr_report.Rmd',quiet=TRUE) #"plain" version, without knitrBootstrap
+      x<-readLines(con=htmlKnitted) #"plain" version, without knitrBootstrap
+      #library(knitrBootstrap)
+      #knit_bootstrap('knitr_report.Rmd') #fancy knitrBootstrap version
+      #x<-readLines(con='knitr_report.html')#fancy knitrBootstrap version
+      writeLines(x,con=filename)
+      # file.rename('knitr_report.html', filename)
       
-      
-      dataSetWithoutOutliers = outlierResults()[[4]]
-      
-      ### Outlier results: Step1 ##########
-      
-      result = outlierResults[[1]]
-      
-      out <- capture.output(result)
-      write.table(out, file, row.names=F, col.names=F, quote=F)
-      
-      
-    })
-  
+    }
+  )
 })
