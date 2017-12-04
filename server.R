@@ -88,7 +88,7 @@ shinyServer(function(input, output, session) {
     
   })
    
-  output$RawData <- DT::renderDT::datatable(
+  output$RawData <- DT::renderDataTable(
     
         dataAnalysis(), options = list(iDisplayLength = 10)
     
@@ -136,7 +136,7 @@ shinyServer(function(input, output, session) {
   
   ### Step1 Outlier results ##########
   
-  output$outlierStep1 <- DT::renderDT::datatable(server = FALSE, {
+  output$outlierStep1 <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -146,7 +146,7 @@ shinyServer(function(input, output, session) {
   
   ### Step2 Outlier results ##########
   
-  output$outlierStep2 <- DT::renderDT::datatable(server = FALSE, {
+  output$outlierStep2 <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -156,7 +156,7 @@ shinyServer(function(input, output, session) {
   
   ### Step3 Outlier results ##########
   
-  output$outlierStep3 <- DT::renderDT::datatable(server = FALSE, {
+  output$outlierStep3 <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -176,7 +176,7 @@ shinyServer(function(input, output, session) {
   }) 
   
   ### Normality: Step1 ##########
-  output$normalityStep1 <- DT::renderDT::datatable(server = FALSE, {
+  output$normalityStep1 <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -186,7 +186,7 @@ shinyServer(function(input, output, session) {
   
   ### Normality: Step2 ##########
   
-  output$normalityStep2 <- DT::renderDT::datatable(server = FALSE, {
+  output$normalityStep2 <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -206,7 +206,7 @@ shinyServer(function(input, output, session) {
   
   ### Homogenity ##########
   
-  output$homogenity <- DT::renderDT::datatable(server = FALSE, {
+  output$homogenity <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -219,7 +219,7 @@ shinyServer(function(input, output, session) {
   
   ### t test for means ##########
   
-  output$ttest <- DT::renderDT::datatable(server = FALSE, {
+  output$ttest <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -232,7 +232,7 @@ shinyServer(function(input, output, session) {
   
   ### Homogenity SIA ##########
   
-  output$homogenitySIA <- DT::renderDT::datatable(server = FALSE, {
+  output$homogenitySIA <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -245,7 +245,7 @@ shinyServer(function(input, output, session) {
   
   ### ttest SIA ##########
   
-  output$ttestSIA <- DT::renderDT::datatable(server = FALSE, {
+  output$ttestSIA <- DT::renderDataTable(server = FALSE, {
     
     if(input$run){
       
@@ -269,7 +269,7 @@ shinyServer(function(input, output, session) {
   
   ######### All ##############
   
-  output$CVtableAll <- DT::renderDT::datatable(server = FALSE, {
+  output$CVtableAll <- DT::renderDataTable(server = FALSE, {
     
     res = analysisOfVarinceResults()
     
@@ -294,7 +294,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$CVResultsAll <- DT::renderDT::datatable(server = FALSE, {
+  output$CVResultsAll <- DT::renderDataTable(server = FALSE, {
     
     res = analysisOfVarinceResults()
     
@@ -319,7 +319,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$ErrorTableAll <- DT::renderDT::datatable(server = FALSE, {
+  output$ErrorTableAll <- DT::renderDataTable(server = FALSE, {
     
     res = analysisOfVarinceResults()
     
@@ -348,7 +348,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  output$CVtableGender1 <- DT::renderDT::datatable(server = FALSE, {
+  output$CVtableGender1 <- DT::renderDataTable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -375,7 +375,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$CVResultsGender1 <- DT::renderDT::datatable(server = FALSE, {
+  output$CVResultsGender1 <- DT::renderDataTable(server = FALSE, {
     if(input$subsetAnalysis){
       res = analysisOfVarinceResults()
       
@@ -401,7 +401,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$ErrorTableGender1 <- DT::renderDT::datatable(server = FALSE, {
+  output$ErrorTableGender1 <- DT::renderDataTable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -435,7 +435,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  output$CVtableGender2 <- DT::renderDT::datatable(server = FALSE, {
+  output$CVtableGender2 <- DT::renderDataTable(server = FALSE, {
     
     if(input$subsetAnalysis){
       res = analysisOfVarinceResults()
@@ -460,7 +460,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$CVResultsGender2 <- DT::renderDT::datatable(server = FALSE, {
+  output$CVResultsGender2 <- DT::renderDataTable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -487,7 +487,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$ErrorTableGender2 <- DT::renderDT::datatable(server = FALSE, {
+  output$ErrorTableGender2 <- DT::renderDataTable(server = FALSE, {
     
     if(input$subsetAnalysis){
       
@@ -708,7 +708,7 @@ shinyServer(function(input, output, session) {
   
   ####### Step 0 #######
   
-  output$plotData <- DT::renderDT::datatable({
+  output$plotData <- DT::renderDataTable({
     
     
   })
