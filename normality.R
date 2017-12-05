@@ -1,7 +1,8 @@
 
 normality <- function(data, subject, analyte){        
-        
-        library(nortest)
+ 
+if(nrow(data) > 0){   
+ library(nortest)
   resultStep1 = NULL
   resultStep2 = NULL      
         analyteValue = data$value
@@ -37,7 +38,7 @@ normality <- function(data, subject, analyte){
           nreject = nreject1
           normalityRate = round(normalityRate*100,2)
           
-          resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual",Test = test, "# of acceptance of normality" = naccept, "# of rejection normality" = nreject, "Normality rate" = normalityRate, Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
+          resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual",Test = test, "# of acceptance of normality" = naccept, "# of rejection normality" = nreject, "Normality rate" = paste0("%",normalityRate), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
           rownames(resultStep1) = NULL
           # cat("\n----------------------------------------------------------------------------------\nSTEP 1. NORMALITY TEST:-ON SET OF RESULTS FROM EACH INDIVIDUAL")
           # cat("\n----------------------------------------------------------------------------------\nShapiro-Wilk's normality test is applied")
@@ -139,7 +140,7 @@ normality <- function(data, subject, analyte){
             if (pval7 >= 0.05){
               resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied",
                                              Test = test, "# of acceptance of normality" = naccept2, 
-                                             "# of rejection normality" = nreject2, "Normality rate" = normalityRate, Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
+                                             "# of rejection normality" = nreject2, "Normality rate" = paste0("%",normalityRate), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
               rownames(resultStep1) = NULL
               
               
@@ -191,6 +192,15 @@ normality <- function(data, subject, analyte){
         
         }
         
+}else{
+  
+  resultStep1 = cbind.data.frame(Note = "There is no observation left after removing outliers. Therefore, the analysis is terminated.")
+  rownames(resultStep1) = NULL
+  
+  resultStep2 = cbind.data.frame(Note = "There is no observation left after removing outliers. Therefore, the analysis is terminated.")
+  rownames(resultStep2) = NULL
+  
+}
         
         normalityResult = list(Step1 = resultStep1, Step2 = resultStep2)
         

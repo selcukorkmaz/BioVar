@@ -129,8 +129,6 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
   outlierStep1 = do.call(rbind.data.frame, outlierList)
   
   
-  
-  
   ### STEP 2 ####
   
   
@@ -177,7 +175,9 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
     
   }
   
-  outlierStep2 = do.call(rbind.data.frame, outlierDataList2)
+  # outlierStep2 = do.call(rbind.data.frame, outlierDataList2)
+  
+  outlierStep2 = dataFull[!(dataFull$subject %in% dataFull2$subject),]
   
   dataAfterStep2 = dataFull2
   
@@ -193,8 +193,8 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
   
   maxDifference = 1
   absoluteDifference = 1
-  
-  while(maxDifference > absoluteDifference/3){
+
+  while(maxDifference > absoluteDifference/3 && length(means) > 0){
     outlierListReed = list()
     
     
@@ -209,9 +209,10 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
       outlier = order[1]
       outSubject = names(outlier)
       
-      outlierListReed[[as.numeric(outSubject)]] = as.numeric(outSubject)
+      outlierListReed[[as.numeric(outSubject)]] = data.frame(subject = outSubject, threshold = round(absoluteDifference/3, 3), maxDifference = round(maxDifference, 3), Outlier = "High-value outlier")
       
       cat("subject", outSubject, "is a high-value outlier \n-------------------------------------------- \nMoving on to check low-value outlier \n--------------------------------------------")
+      
     }else{
       
       cat("\nNo high-value outlier\n")
@@ -226,7 +227,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
       
       outlier = order[1]
       outSubject = names(outlier)
-      outlierListReed[[as.numeric(outSubject)]] = as.numeric(outSubject)
+      outlierListReed[[as.numeric(outSubject)]] = data.frame(subject = outSubject, threshold = round(absoluteDifference/3, 3), maxDifference = round(maxDifference, 3), Outlier = "Low-value outlier")
       
       cat("subject", outSubject, "is a low-value outlier \n-------------------------------------------- \nOutlier detection process is successfully completed \n--------------------------------------------")
     }else{
@@ -234,14 +235,15 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
       cat("\nNo low-value outlier\n" )
     }
     
+    outlierListReed = do.call(rbind.data.frame, outlierListReed)
     
-    if(length(outlierListReed) != 0){
-      outlierSubjectsReed = do.call(rbind.data.frame,outlierListReed)
-      names(outlierSubjectsReed) = "Subjects"
+    if(nrow(outlierListReed) > 0){
+      # outlierSubjectsReed = do.call(rbind.data.frame,outlierListReed)
+      # names(outlierSubjectsReed) = "Subjects"
       
-      dataReed = dataReed[!(dataReed$subject %in%  outlierSubjectsReed[,1]),]
+      dataReed = dataReed[!(dataReed$subject %in%  outlierListReed),]
       
-      means = means[!(names(means) %in% outlierSubjectsReed[,1])]
+      means = means[!(names(means) %in% outlierListReed$subject)]
       
     }else{
       
@@ -255,8 +257,38 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
   dataWithoutOutliers = dataReed
   
   
-  outlierStep3 = dataWithoutOutliers[!(dataWithoutOutliers$subject %in% dataFull2$subject),]
+  if(nrow(outlierStep1) > 0){
+    outlierStep1 = outlierStep1[,-c(2,4)]
+    names(outlierStep1) = c("Subject", "Time", "1st replication", "2nd replication", "Variance")
+  }else{
+    
+    outlierStep1 = cbind.data.frame(Note = "No outliers found.")
+    
+  }
   
+  if(nrow(outlierStep2) > 0){
+    outlierStep2 = outlierStep2[,-5]
+    names(outlierStep2) = c("Subject", "Gender", "Time", "Replicate", "Value")
+    rownames(outlierStep2) = NULL
+  }else{
+    
+    outlierStep2 = cbind.data.frame(Note = "No outliers found.")
+    
+  }
+  
+  if(nrow(outlierListReed) > 0){
+    
+    outlierStep3 = outlierListReed
+    names(outlierStep3) = c("Subject", "Threshold", "Maximum difference", "Outlier")
+    
+    
+  }else{
+    
+    outlierStep3 = cbind.data.frame(Note = "No outliers found.")
+
+  }
+    
+    
   
   outlierResult = list(step1 = outlierStep1, step2 = outlierStep2, step3 = outlierStep3, dataWithoutOutliers = dataWithoutOutliers, dataAfterStep1 = dataAfterStep1, dataAfterStep2 = dataAfterStep2)
   

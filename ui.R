@@ -21,7 +21,7 @@ shinyUI(pageWithSidebar(
               
                       checkboxInput("subsetAnalysis", "Subset Analysis", value = TRUE),
                      
-                     selectInput(inputId = "method", label = "Analysis method", multiple = FALSE, choices = c("ANOVA" = "anova", "Linear Mixed Effects Models" = "lme"), selected = "ANOVA"),
+                     selectInput(inputId = "method", label = "Analysis method", multiple = FALSE, choices = c("ANOVA" = "anova", "LME" = "lme"), selected = "ANOVA"),
                      
                      selectInput(inputId = "showResults", label = "Show results for", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "transformed", "Back log-transformed" =  "transformBack"), selected = "Original"),
                      
@@ -205,9 +205,26 @@ shinyUI(pageWithSidebar(
   
   mainPanel(
     tabsetPanel(
-      tabPanel("Introduction"
+      tabPanel("Introduction",
                
+               h4("Analyze biological variation for analytes!"),
                
+          HTML('<p> In this tool, the biological analytes will be analyzed by the pipeline provided by Braga and Panteghini [1].</p>'),
+          
+          HTML('The tool includes 3 different outlier detection steps: (i) outliers in the sets of duplicate results, (ii) outliers in the variances 
+of the results from each subject and  (iii) outliers in the variances of the results from each subject.</p>'),
+          
+          HTML('Normality tests will be performed using Shapiro-Wilk and Kolmogorov-Smirnov tests in two steps: (i) on set of results from each individual, (ii) on mean values of subjects. </p>'),
+
+          HTML('Subset analysis will be performed to compare (i) means and (i) average within-subject total variances of gender groups.</p>'),
+          
+          HTML('Analysis of variance or linear mixed effects models will be performed to obtain coefficient of variation results, ANOVA table and quality measures for all subjects, 
+              males and females separately. Fo further details please see Braga and Panteghini [1].</p>'),
+
+
+          HTML('<left><img src="intro/intro1.png" width = "50%"></left><left><img src="intro/intro3.png" width = "50%"></left>'),
+          
+          h6("[1] Braga, F., & Panteghini, M. (2016). Generation of data on within-subject biological variation in laboratory medicine: an update. Critical reviews in clinical laboratory sciences, 53(5), 313-325.")
                
       ),
       
@@ -385,16 +402,50 @@ shinyUI(pageWithSidebar(
       # ),
       
       tabPanel("Manual",
-               
                h5("Usage of the web-tool"),
                HTML('<p>In order to use this application,</p>'),
-               HTML('<p> (i) load your data set using <b>Data upload</b> tab. If data set has a group variable, users can define whether this variable is in the first or last column then the analysis will be performed in each sub-group,</p>'),
-               HTML('<p> (ii) check univariate normality through univariate normality tests and plots in the <b>Univariate analysis</b> tab. Users also can get descriptive statistics using this tab, </p>'),
-               HTML('<p> (iii) check multivariate outliers in the <b>Outlier detection</b> tab, </p>'),
-               HTML('<p> (iv) check multivariate normality through MVN tests and plots in the <b>Multivariate analysis</b> tab.</p>'),
-               HTML('<p align="justify"> Users can download univariate results (both descriptive statistics and univariate normality tests, as txt) and univariate plots (as pdf) from <b>Univariate analysis</b> tab, outlier set (as txt), data set without outliers (as txt) and chi-square QQ plot (as pdf) from <b>Outlier detection</b> tab, also MVN test results (as txt) and plots (as pdf or png) can be downloaded by using <b>Multivariate analysis</b> tab. </p>'),
-               HTML('<p> <b>Please note that box-plots are based on standardized values (centered and scaled), and perspective and contour plots are only available for bivariate normal distributions.</b></p>'),
-               HTML('<p> <b>If there are missing values in the data, a listwise deletion will be applied and a complete-case analysis will be performed.</b></p>')
+               
+               HTML('<p> <b>1. Load your data set using <em>Data upload</em> tab. You can upload your dataset in two different ways:</b></p>'),
+               HTML('<p><b>(i) Long format:</b></p>'),
+               HTML('<center><img src="manual/dataUploadLong.png" width = "100%"></center>'),
+               br(),
+               
+               HTML('<p><b>(ii) Wide format:</b> enter an analyte name, select subject, gender, replicate columns and define the time range and click <b>Convert to long format button</b>.</p>'),
+               HTML('<center><img src="manual/dataUploadWide.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<p> <b>2. After uploading appropriate dataset, move on to the <em>Analysis</em> tab. Select <em>analyte</em>, <em>subject</em>, <em>gender</em>, <em>time</em> and <em>replicate</em> variables. Check <em>Subset Analysis</em> box to perform analysis for gender groups. Choose an analysis method either <em>ANOVA</em> or <em>LME</em>. Select desired output as <em>Original</em>, <em>Log-transformed</em> or <em>Back log-transformed</em>.</b>  </p>'),
+               HTML('<p><b>(i) get outlier results:</b></p>'),
+               HTML('<center><img src="manual/outliers.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<p><b>(ii) get normality results:</b></p>'),
+               HTML('<center><img src="manual/normality.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<p><b>(iii) get subset analysis results:</b></p>'),
+               HTML('<center><img src="manual/subset.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<p><b>(iv) get subset ANOVA results for all subjects:</b></p>'),
+               HTML('<center><img src="manual/anovaAll.png" width = "100%"></center>'),
+
+               br(),
+               HTML('<p><b>(v) get subset ANOVA results for the first gender group:</b></p>'),
+               HTML('<center><img src="manual/anovaGender1.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<p><b>(vi) get subset ANOVA results for the second gender group:</b></p>'),
+               HTML('<center><img src="manual/anovaGender2.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<p><b>(vii) get plots:</b></p>'),
+               HTML('<center><img src="manual/plots.png" width = "100%"></center>'),
+
+               br(),
+               HTML('<p><b>(viii) generate and download the report for the analyte to be analyzed:</b></p>'),
+               HTML('<center><img src="manual/report.png" width = "100%"></center>')
+               
       ),
       
       # tabPanel("Authors & News",
