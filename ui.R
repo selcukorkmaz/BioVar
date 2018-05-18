@@ -2,7 +2,7 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   
-  headerPanel("Biological Variation Tool v.0.1"),
+  headerPanel("Biological Variation Tool v.0.9"),
   
   sidebarPanel(width=3,
     conditionalPanel(condition="input.tabs1=='Introduction'"

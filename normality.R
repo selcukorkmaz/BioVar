@@ -136,6 +136,7 @@ if(nrow(data) > 0){
             logmeanval = log(meanval)
             sw7 = shapiro.test(logmeanval)
             pval7 = sw7$p.value
+            normalityRate = round(normalityRate*100,2)
             
             if (pval7 >= 0.05){
               resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied",
@@ -169,9 +170,10 @@ if(nrow(data) > 0){
               
             } else {
               
+              normalityRate = round(100*(naccept1/(naccept1+nreject1)),2)
               
               resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied", Test = "Shapiro-Wilk", 
-                                             "# of acceptance of normality" = naccept1, "# of rejection normality" = nreject1, "Normality rate" = naccept1/(naccept1+nreject1), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
+                                             "# of acceptance of normality" = naccept1, "# of rejection normality" = nreject1, "Normality rate" = paste0("%",normalityRate), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
               rownames(resultStep1) = NULL
               
         
@@ -184,8 +186,9 @@ if(nrow(data) > 0){
             }
           } else {
             
+            normalityRate = round(100*(naccept1/(naccept1+nreject1)),2)
             resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied", Test = "Shapiro-Wilk", "# of acceptance of normality" = naccept1, 
-                                           "# of rejection normality" = nreject1, "Normality rate" = naccept1/(naccept1+nreject1), 
+                                           "# of rejection normality" = nreject1, "Normality rate" = paste0("%",normalityRate), 
                                             Comment = paste0("The data is not normally distributed for ", nameanalyte), "Final result" =  "Analyses should not be continued by Linear Mixed Effect Models or ANOVA")
             rownames(resultStep1) = NULL
             
