@@ -114,7 +114,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
       outlierSubject = dataNew[which.max(vars),"subject"]
       outlierTime = dataNew[which.max(vars),"time"]
       
-      dataFull[dataFull$subject==outlierSubject & dataFull$time ==outlierTime,][,"value"] = c(NA, NA)
+      dataFull = dataFull[!(dataFull$subject %in% outlierSubject),]
       
       outlierList[[j]] = dataNew[which.max(dataNew$var),]
       
