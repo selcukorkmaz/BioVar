@@ -83,8 +83,11 @@ subsetAnalysis <- function(data, subject, gender, analyte, CVresult = "original"
   gender2 = genderU[with(genderU, order(subject)), ]
   
   dataHomogenity3 = cbind.data.frame(vars, gender2)
+  names(dataHomogenity3) = c("vars", "subject", "gender")
   
-  bartlet = bartlett.test(dataHomogenity3$vars, dataHomogenity3[,gender])
+  fTest = var.test(vars ~ gender, data = dataHomogenity3, alternative = "two.sided")  
+  
+  bartlet = bartlett.test(dataHomogenity3$vars, dataHomogenity3[,"gender"])
   
   
   HomogenitySIAResult =  data.frame(matrix(NA,1,5))
@@ -99,23 +102,20 @@ subsetAnalysis <- function(data, subject, gender, analyte, CVresult = "original"
   
   if(bartlet$p.value > 0.05){ varEqual = TRUE}else{ varEqual = FALSE}
   
-  formula = as.formula(paste0("vars ~ ", gender))
+  # formula = as.formula(paste0("vars ~ ", gender))
   
-  ttest = t.test(formula, data = dataHomogenity3, var.equal = varEqual)
+  ttest = t.test(vars~gender, data = dataHomogenity3, var.equal = varEqual)
   
-  sd = tapply(dataHomogenity3$vars, dataHomogenity3[,gender], sd)
+  sd = tapply(dataHomogenity3$vars, dataHomogenity3[,"gender"], sd)
   
-  ttestResultSIA =  data.frame(matrix(NA,1,7))
-  names(ttestResultSIA) = c("Analyte", paste0("Mean (", genderLevels[1],")"), paste0("SD (", genderLevels[1],")"), paste0("Mean (", genderLevels[2],")"), paste0("SD (", genderLevels[2],")"), "p-value", "Result")
-  ttestResultSIA[1,1] = analyte
-  ttestResultSIA[1,2] = round(ttest$estimate[[1]],2)
-  ttestResultSIA[1,3] = round(sd[[1]],2)
-  ttestResultSIA[1,4] = round(ttest$estimate[[2]],2)
-  ttestResultSIA[1,5] = round(sd[[2]],2)
-  ttestResultSIA[1,6] = round(ttest$p.value,2)
-  ttestResultSIA[1,7] = if(ttest$p.value > 0.05){"No difference"}else{"Different"}
+  fTestResultSIA =  data.frame(matrix(NA,1,4))
+  names(fTestResultSIA) = c("Analyte", "Ratio of variances", "p value","Result")
+  fTestResultSIA[1,1] = analyte
+  fTestResultSIA[1,2] = round(fTest$statistic,2)
+  fTestResultSIA[1,3] = round(fTest$p.value,2)
+  fTestResultSIA[1,4] = if(fTest$p.value > 0.05){"No difference"}else{"Different"}
   
-  subsetResult = list(homogenity = HomogenityGenderResult, ttest = ttestResult, homogenitySIA = HomogenitySIAResult, ttestSIA = ttestResultSIA)
+  subsetResult = list(homogenity = HomogenityGenderResult, ttest = ttestResult, homogenitySIA = HomogenitySIAResult, fTestSIA = fTestResultSIA)
   
   return(subsetResult)
 }

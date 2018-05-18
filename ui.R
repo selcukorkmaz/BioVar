@@ -340,7 +340,10 @@ of the results from each subject and  (iii) outliers in the variances of the res
                
                tabPanel('Report',
                         
-                        downloadButton("downloadReport", "Download report")
+                        # downloadButton("downloadReport", "Download report")
+                        radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+                                     inline = TRUE),
+                        downloadButton('downloadReport')
                         
                )
                

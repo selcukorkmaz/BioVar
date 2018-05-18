@@ -581,7 +581,7 @@ shinyServer(function(input, output, session) {
   output$subsetTitleStep2 <- renderText({
     
     if (input$run){
-      "Step 2: Student's t test for average within-subject total variance"
+      "Step 2: F test for average within-subject total variance"
     }
     
   })
@@ -910,22 +910,48 @@ shinyServer(function(input, output, session) {
   ###### Report ######
   
   output$downloadReport <- downloadHandler(
-    filename =  'report.html',
-    contentType =  'text/html',
-    content = function(filename) {
-      library(knitr)
-      library(knitcitations)
+    filename = function() {
+      paste('my-report', sep = '.', switch(
+        input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+      ))
+    },
+    
+    content = function(file) {
+      src <- normalizePath('knitr_report.Rmd')
       
-      if (file.exists('knitr_report.html')) file.remove('knitr_report.html')
-      if (file.exists('knitr_report.md')) file.remove('knitr_report.md')
-      htmlKnitted<-knit2html('knitr_report.Rmd',quiet=TRUE) #"plain" version, without knitrBootstrap
-      x<-readLines(con=htmlKnitted) #"plain" version, without knitrBootstrap
-      #library(knitrBootstrap)
-      #knit_bootstrap('knitr_report.Rmd') #fancy knitrBootstrap version
-      #x<-readLines(con='knitr_report.html')#fancy knitrBootstrap version
-      writeLines(x,con=filename)
-      # file.rename('knitr_report.html', filename)
+      # temporarily switch to the temp dir, in case you do not have write
+      # permission to the current working directory
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      file.copy(src, 'knitr_report.Rmd', overwrite = TRUE)
       
+      library(rmarkdown)
+      out <- render('knitr_report.Rmd', switch(
+        input$format,
+        PDF = pdf_document(), HTML = html_document(), Word = word_document()
+      ))
+      file.rename(out, file)
     }
   )
+  
+  
+  # output$downloadReport <- downloadHandler(
+  #   filename =  'report.html',
+  #   contentType =  'text/html',
+  #   content = function(filename) {
+  #     library(knitr)
+  #     library(knitcitations)
+  #     
+  #     if (file.exists('knitr_report.html')) file.remove('knitr_report.html')
+  #     if (file.exists('knitr_report.md')) file.remove('knitr_report.md')
+  #     htmlKnitted<-knit2html('knitr_report.Rmd',quiet=TRUE) #"plain" version, without knitrBootstrap
+  #     x<-readLines(con=htmlKnitted) #"plain" version, without knitrBootstrap
+  #     #library(knitrBootstrap)
+  #     #knit_bootstrap('knitr_report.Rmd') #fancy knitrBootstrap version
+  #     #x<-readLines(con='knitr_report.html')#fancy knitrBootstrap version
+  #     writeLines(x,con=filename)
+  #     # file.rename('knitr_report.html', filename)
+  #     
+  #   }
+  # )
 })

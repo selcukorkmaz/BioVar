@@ -62,7 +62,7 @@ To compare the mean and average within-subject total variance values of gender g
 ## 3.1. Step 1: Student's t test for mean differences of gender
 ![plot of chunk unnamed-chunk-6](tempFiguresForKnitrReport/unnamed-chunk-6-1.png)
 
-## 3.2. Step 2: Student's t test for average within-subject total variance
+## 3.2. Step 2: F test for average within-subject total variance
 ![plot of chunk unnamed-chunk-7](tempFiguresForKnitrReport/unnamed-chunk-7-1.png)
 
 # 4. Analysis of Variance

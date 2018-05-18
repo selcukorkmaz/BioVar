@@ -184,10 +184,14 @@ if(nrow(data) > 0){
             }
           } else {
             
-            resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual",Test = "Shapiro-Wilk", "# of acceptance of normality" = naccept1, 
+            resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied", Test = "Shapiro-Wilk", "# of acceptance of normality" = naccept1, 
                                            "# of rejection normality" = nreject1, "Normality rate" = naccept1/(naccept1+nreject1), 
                                             Comment = paste0("The data is not normally distributed for ", nameanalyte), "Final result" =  "Analyses should not be continued by Linear Mixed Effect Models or ANOVA")
             rownames(resultStep1) = NULL
+            
+            resultStep2 = cbind.data.frame(Note = "Analyses should not be continued by Linear Mixed Effect Models or ANOVA")
+            rownames(resultStep2) = NULL
+            
           }
         
         }

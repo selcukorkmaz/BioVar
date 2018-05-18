@@ -86,7 +86,7 @@ To compare the mean and average within-subject total variance values of gender g
 
 ```
 
-## 3.2. Step 2: Student's t test for average within-subject total variance
+## 3.2. Step 2: F test for average within-subject total variance
 ```{r}
       datatable(subsetResults()[[4]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 

@@ -241,7 +241,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender){
       # outlierSubjectsReed = do.call(rbind.data.frame,outlierListReed)
       # names(outlierSubjectsReed) = "Subjects"
       
-      dataReed = dataReed[!(dataReed$subject %in%  outlierListReed),]
+      dataReed = dataReed[!(dataReed$subject %in%  outlierListReed$subject),]
       
       means = means[!(names(means) %in% outlierListReed$subject)]
       
