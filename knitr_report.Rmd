@@ -1,4 +1,8 @@
-# Biological Variation Report for (`r input$analyte`)
+---
+title: "Biological Variation Report for `r input$analyte`"
+always_allow_html: yes
+output: pdf_document
+---
 
 
 ```{r hello-random, echo=FALSE}
@@ -37,15 +41,15 @@ Here are the abbreviations we used in this report:
 
 For outlier identification, we used Cochran’s test to detect outliers among duplicate measurements) and average within-subject total variance values, and Reed’s criterion to detect outliers among mean concentration values of subjects.
 
-## 1.1. Step 1: Outliers in the sets of duplicate results using the Cochran test
+## 1.1. Table 1: Outliers in the sets of duplicate results using the Cochran test
 
 ```{r}
-datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 ```
 *******
 
 
-## 1.2. Step 2: Outliers in the variances of the results from each subject using the Cochran test
+## 1.2. Table 2: Outliers in the variances of the results from each subject using the Cochran test
 
 ```{r}
 datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
@@ -53,7 +57,7 @@ datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsiv
 *******
 
 
-## 1.3 Step 3: Outliers in the variances of the results from each subject using the Cochran test
+## 1.3 Table 3: Outliers in the variances of the results from each subject using the Cochran test
 
 ```{r}
 datatable(outlierResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
@@ -64,13 +68,13 @@ datatable(outlierResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsiv
 
 For normality checking, first, we applied Shapiro–Wilk test to the set of results from each individual to check data distribution and to validate the normality hypothesis. If the normal distribution assumption is rejected for most of the analyzed subjects (>50%), we applied the natural logarithmic scale transformation of all data. Then we applied the Shapiro-Wilk test to the transformed data. We also used the Shapiro-Wilk test to evaluate the distribution of mean concentration values of all subjects. If the test rejects the hypothesis of normality, we applied Kolmogorov-Smirnov test. If even this test confirms a skewed distribution, we applied a natural logarithmic scale transformation. We repeat the Shapiro–Wilk test on the log-transformed values to experimentally confirm the normality of the transformed data distribution. If the data transformation does not resolve the skewed distribution issue, the authors are forced to stop the calculations. On the other hand, if the normal distribution is in fact confirmed, it is possible to derive the variance components from the transformed data. These data must, however, be converted back before calculating the CVs to make these latter applicable to laboratory practice.
 
-## 2.1. Step 1: On set of results from each individual
+## 2.1. Table 1: On set of results from each individual
 ```{r}
       datatable(normalityResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
-## 2.2. Step 2: On mean values of subjects
+## 2.2. Table 2: On mean values of subjects
 ```{r}
       datatable(normalityResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
@@ -80,68 +84,79 @@ For normality checking, first, we applied Shapiro–Wilk test to the set of resu
 
 To compare the mean and average within-subject total variance values of gender groups, we applied independent Student’s t-tests. If t-test shows a statistically significant difference, all the ANOVA results must be evaluated separately for each gender group.
 
-## 3.1. Step 1: Student's t test for mean differences of gender
+## 3.1. Table 1: Student's t test for mean differences of gender
 ```{r}
       datatable(subsetResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
-## 3.2. Step 2: F test for average within-subject total variance
+## 3.2. Table 2: F test for average within-subject total variance
 ```{r}
       datatable(subsetResults()[[4]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
+## 3.3. Table 3: Homogeneity test for mean values of gender groups
+```{r}
+      datatable(subsetResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+
+```
+
+## 3.4. Table 4: Homogeneity test for average within-subject total variance
+```{r}
+      datatable(subsetResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+
+```
+
+
 # 4. Analysis of Variance
 ## 4.1. All subjects
 
-### 4.1.1. Step 1: Coefficient of variation results
+### 4.1.1. Table 1: Coefficient of variation results
 
 ```{r}
  res = analysisOfVarinceResults()
     
-    if(input$run && input$showResults == "original"){
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
       
-      result = datatable(res$resultsAllOriginal$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllOriginalLme$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
-    
-     if(input$run && input$showResults == "transformed"){
+     if(input$run && input$showResult == "cv"){
       
-      result = datatable(res$resultsAllTransformed$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllCvAnova$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
-    
-     if(input$run && input$showResults == "transformBack"){
+     if(input$run  && input$showResult == "transformBack"){
       
-      result = datatable(res$resultsAllTransformBack$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-     }
-
+      result = DT::datatable(res$resultsAllTransformBackLnLme$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
 result
 ```
 
-### 4.1.2. Step 2: Analysis of variance table
+### 4.1.2. Table 2: Analysis of variance table
 
 ```{r}
     
     res = analysisOfVarinceResults()
     
-    if(input$run && input$showResults == "original"){
+   if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
       
-      result = datatable(res$resultsAllOriginal$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result =  DT::datatable(res$resultsAllOriginalLme$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+     if(input$run && input$showResult == "cv"){
+      
+      result = DT::datatable(res$resultsAllCvAnova$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
-     if(input$run && input$showResults == "transformed"){
+     if(input$run && input$showResult == "transformBack"){
       
-      result =  datatable(res$resultsAllTransformed$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformBackLnLme$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
-    
-     if(input$run && input$showResults == "transformBack"){
-      
-      result = datatable(res$resultsAllTransformBack$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-     }
 
 result
     
@@ -149,117 +164,120 @@ result
 ```
 
 
-### 4.1.3. Step 3: Quality measures
+### 4.1.3. Table 3: Quality measures
 
 ```{r}
- res = analysisOfVarinceResults()
+ 
+    res = analysisOfVarinceResults()
     
-    if(input$run && input$showResults == "original"){
+   if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
       
-      result = datatable(res$resultsAllOriginal$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllOriginalLme$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
-     if(input$run && input$showResults == "transformed"){
+   if(input$run && input$showResult == "cv"){
       
-      result = datatable(res$resultsAllTransformed$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllCvAnova$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
-    
-     if(input$run && input$showResults == "transformBack"){
+   if(input$run && input$showResult == "transformBack"){
       
-      result = datatable(res$resultsAllTransformBack$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformBackLnLme$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
 result
 ```
 
 ## 4.2. Gender 1
 
-### 4.2.1. Step 1: Coefficient of variation results
+### 4.2.1. Table 1: Coefficient of variation results
 ```{r}
-if(input$subsetAnalysis){
-      res = analysisOfVarinceResults()
+
+       res = analysisOfVarinceResults()
       
-      if(input$run && input$showResults == "original"){
-        
-        result = datatable(res$resultsOriginalGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-      
-      else if(input$run && input$showResults == "transformed"){
+     if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
         
         
-        result = datatable(res$resultsTransformedGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsOriginalGenderLme1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
-      else if(input$run && input$showResults == "transformBack"){
+      if(input$run && input$showResult == "cv"){
         
-        result =  datatable(res$resultsTransformBackGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsCvAnovaGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
+      
+      if(input$run && input$showResult == "transformBack"){
+        
+        result = DT::datatable(res$resultsTransformBackGenderLnLme1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
       
       result
       
-    }
+    
 
 ```
 
 
-### 4.2.2. Step 2: Analysis of variance table
+### 4.2.2. Table 2: Analysis of variance table
 ```{r}
-  if(input$subsetAnalysis){
+  
       
       res = analysisOfVarinceResults()
       
-      if(input$run && input$showResults == "original"){
+     if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
         
-        result =  datatable(res$resultsOriginalGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsOriginalGenderLme1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
-      else if(input$run && input$showResults == "transformed"){
+       if(input$run && input$showResult == "cv"){
         
-        result = datatable(res$resultsTransformedGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsCvAnovaGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
-      
-      else if(input$run && input$showResults == "transformBack"){
+       if(input$run && input$showResult == "transformBack"){
         
-        result = datatable(res$resultsTransformBackGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGenderLnLme1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
+      
+    
       
       result
-    }
+    
 
 ```
 
 
-### 4.2.3. Step 3: Quality measures
+### 4.2.3. Table 3: Quality measures
 ```{r}
-if(input$subsetAnalysis){
+
       
       res = analysisOfVarinceResults()
       
       
-      if(input$run && input$showResults == "original"){
+     if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
         
-        result = datatable(res$resultsOriginalGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsOriginalGenderLme1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+       if(input$run && input$showResult == "cv"){
+        
+        result = DT::datatable(res$resultsCvAnovaGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+
+       if(input$run && input$showResult == "transformBack"){
+        
+        result = DT::datatable(res$resultsTransformBackGenderLnLme1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
-      else if(input$run && input$showResults == "transformed"){
-        
-        result = datatable(res$resultsTransformedGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-      
-      
-      else if(input$run && input$showResults == "transformBack"){
-        
-        result = datatable(res$resultsTransformBackGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-      
+    
       result
       
-    }
+    
 
 ```
 
@@ -267,87 +285,265 @@ if(input$subsetAnalysis){
 ## 4.3. Gender 2
 
 
-### 4.3.1. Step 1: Coefficient of variation results
+### 4.3.1. Table 1: Coefficient of variation results
 ```{r}
-if(input$subsetAnalysis){
+
       
-      result = res = analysisOfVarinceResults()
+     result = res = analysisOfVarinceResults()
       
-      if(input$run && input$showResults == "original"){
+     if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
         
-        result =  datatable(res$resultsOriginalGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =   DT::datatable(res$resultsOriginalGenderLme2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
-      else if(input$run && input$showResults == "transformed"){
+      
+       if(input$run && input$showResult == "cv"){
         
-        result =   datatable(res$resultsTransformedGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsCvAnovaGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+
+       if(input$run && input$showResult == "transformBack"){
+        
+        result = DT::datatable(res$resultsTransformBackGenderLnLme2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
-      else if(input$run && input$showResults == "transformBack"){
-        
-        result = datatable(res$resultsTransformBackGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
      result 
+    
+
+```
+
+
+### 4.3.2. Table 2: Analysis of variance table
+```{r}
+  
+       
+      res = analysisOfVarinceResults()
+      
+      if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+        
+        result = DT::datatable(res$resultsOriginalGenderLme2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+      
+       if(input$run && input$showResult == "cv"){
+
+        result = DT::datatable(res$resultsCvAnovaGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+       if(input$run && input$showResult == "transformBack"){
+        
+        result = DT::datatable(res$resultsTransformBackGenderLnLme2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+     
+    result
+      
+
+```
+
+
+### 4.3.3. Table 3: Quality measures
+```{r}
+
+     res = analysisOfVarinceResults()
+      
+      
+     if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+        
+        result =  DT::datatable(res$resultsOriginalGenderLme2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+       if(input$run && input$showResult == "cv"){
+        
+        result = DT::datatable(res$resultsCvAnovaGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+       if(input$run && input$showResult == "transformBack"){
+        
+        result = DT::datatable(res$resultsTransformBackGenderLnLme2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      }
+      
+      
+    result
+      
+```
+
+# 5. Plots
+## Figure 1: Mean and absolute range plot before outlier detection
+```{r}
+
+    data = dataAnalysis()
+    data$replicate.subject = as.numeric(paste0(data[,input$replicate], data[,input$subject]))
+    
+    
+    names = c(input$subject, input$gender, input$time, input$replicate, "replicate.subject", input$analyte)
+    
+    
+    dataFull = data[,names]
+    names(dataFull)[6] = "value"
+    
+    dataFull = dataFull[complete.cases(dataFull),]
+    dataFull[dataFull$value <=0,"value"] = NA
+    
+    dataFull = dataFull[complete.cases(dataFull),]
+    
+    tbl = table(dataFull$subject)
+    
+    naSubject = tbl[!(tbl%%2==0)]
+    naSubject2 = as.numeric(names(naSubject))
+    
+    if(length(naSubject2) >0){
+      for(i in 1:length(naSubject2)){
+        
+        nas3 = dataFull[dataFull$subject == naSubject2[i],]
+        
+        tbl2 = table(nas3$time)
+        
+        nas4 = tbl2[!(tbl2%%2==0)]
+        nas5 = as.numeric(names(nas4))
+        
+        for(j in 1:length(nas5)){
+          
+          dataFull[dataFull[,input$subject] == naSubject2[i] & dataFull[,input$time] == nas5[j],"value"] = NA
+          
+          
+        }
+        
+      }
+      
     }
-
+    
+    dataFull = dataFull[complete.cases(dataFull),]
+    
+    dataFull = dataFull[with(dataFull, order(eval(parse(text=input$gender)))), ]
+    
+    
+    
+    data_grp <- eval(substitute(group_by(dataFull, eval(parse(text=input$subject)))))
+    plotData <- dplyr::summarise(data_grp, N = n(), Mean = mean(value), Min = min(value), Max = max(value))
+    colnames(plotData)[1] = input$subject
+    
+    gender = as.data.frame(data_grp[,c(input$subject, input$gender)][!duplicated(data_grp[,c(input$subject, input$gender)]), ])
+    
+    plotData = merge(plotData, gender, by = input$subject)
+    
+    plotData[,input$subject] <- as.factor(plotData[,input$subject])
+    
+    plotData = plotData[with(plotData, order(eval(parse(text=input$gender)))), ]
+    
+    
+    p = ggplot(plotData, aes_string(y = "Mean", x =input$subject, color = input$gender)) +
+      geom_point() +
+      geom_errorbar(aes(ymax = Max, ymin = Min), width = 0.35) +
+      coord_flip() +
+      theme_bw(base_size = 14) +
+      ylab(input$analyte) +
+      xlab("Subjects")+
+      scale_x_discrete(limits=plotData[,input$subject])
+    
+    p
+    
 ```
 
-
-### 4.3.2. Step 2: Analysis of variance table
+## Figure 2: Mean and absolute range plot after step 1 outlier detection
 ```{r}
-  if(input$subsetAnalysis){
-      res = analysisOfVarinceResults()
-      
-      if(input$run && input$showResults == "original"){
-        
-        result =  datatable(res$resultsOriginalGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-      
-      
-      else if(input$run && input$showResults == "transformed"){
-        
-        result = datatable(res$resultsTransformedGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-      
-      
-      else if(input$run && input$showResults == "transformBack"){
-        
-        result = datatable(res$resultsTransformBackGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-    result
-      }
 
+    data = outlierResults()[[5]]
+    
+    names = c(input$subject, input$gender, input$time, input$replicate, "replicate.subject", "value")
+    
+    
+    dataFull = data[,names]
+    
+    
+    data_grp <- eval(substitute(group_by(dataFull, eval(parse(text=input$subject)))))
+    plotData <- dplyr::summarise(data_grp, N = n(), Mean = mean(value), Min = min(value), Max = max(value))
+    colnames(plotData)[1] = input$subject
+    
+    gender = as.data.frame(data_grp[,c(input$subject, input$gender)][!duplicated(data_grp[,c(input$subject, input$gender)]), ])
+    
+    plotData = merge(plotData, gender, by = input$subject)
+    
+    plotData[,input$subject] <- as.factor(plotData[,input$subject])
+    
+    plotData = plotData[with(plotData, order(eval(parse(text=input$gender)))), ]
+    
+    
+    ggplot(plotData, aes_string(y = "Mean", x =input$subject, color = input$gender)) +
+      geom_point() +
+      geom_errorbar(aes(ymax = Max, ymin = Min), width = 0.35) +
+      coord_flip() +
+      theme_bw(base_size = 14) +
+      ylab(input$analyte) +
+      xlab("Subjects")+
+      scale_x_discrete(limits=plotData[,input$subject])
 ```
 
-
-### 4.3.3. Step 3: Quality measures
+## Figure 3: Mean and absolute range plot after step 1 outlier detection
 ```{r}
-
- if(input$subsetAnalysis){
+ 
+      data = outlierResults()[[6]]
       
-      res = analysisOfVarinceResults()
-      
-      
-      if(input$run && input$showResults == "original"){
-        
-        result =  datatable(res$resultsOriginalGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
+      names = c(input$subject, input$gender, input$time, input$replicate, "replicate.subject", "value")
       
       
-      else if(input$run && input$showResults == "transformed"){
-        
-        result =  datatable(res$resultsTransformedGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
+      dataFull = data[,names]
       
       
-      else if(input$run && input$showResults == "transformBack"){
-        
-        result = datatable(res$resultsTransformBackGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
-      }
-    result
-      }
+      data_grp <- eval(substitute(group_by(dataFull, eval(parse(text=input$subject)))))
+      plotData <- dplyr::summarise(data_grp, N = n(), Mean = mean(value), Min = min(value), Max = max(value))
+      colnames(plotData)[1] = input$subject
+      
+      gender = as.data.frame(data_grp[,c(input$subject, input$gender)][!duplicated(data_grp[,c(input$subject, input$gender)]), ])
+      
+      plotData = merge(plotData, gender, by = input$subject)
+      
+      plotData[,input$subject] <- as.factor(plotData[,input$subject])
+      
+      plotData = plotData[with(plotData, order(eval(parse(text=input$gender)))), ]
+      
+      
+      ggplot(plotData, aes_string(y = "Mean", x =input$subject, color = input$gender)) +
+        geom_point() +
+        geom_errorbar(aes(ymax = Max, ymin = Min), width = 0.35) +
+        coord_flip() +
+        theme_bw(base_size = 14) +
+        ylab(input$analyte) +
+        xlab("Subjects")+
+        scale_x_discrete(limits=plotData[,input$subject]) 
+      
+      
 ```
 
-
+## Figure 4: Mean and absolute range plot after step 3 outlier detection
+```{r}
+ data = outlierResults()[[4]]
+    
+    names(data) = c(input$subject, input$gender, input$time, input$replicate, "replicate.subject", "value")
+    
+    dataFull = data
+    
+    data_grp <- eval(substitute(group_by(dataFull, eval(parse(text=input$subject)))))
+    plotData <- dplyr::summarise(data_grp, N = n(), Mean = mean(value), Min = min(value), Max = max(value))
+    colnames(plotData)[1] = input$subject
+    
+    gender = as.data.frame(data_grp[,c(input$subject, input$gender)][!duplicated(data_grp[,c(input$subject, input$gender)]), ])
+    
+    plotData = merge(plotData, gender, by = input$subject)
+    
+    plotData[,input$subject] <- as.factor(plotData[,input$subject])
+    
+    plotData = plotData[with(plotData, order(eval(parse(text=input$gender)))), ]
+    
+    
+    ggplot(plotData, aes_string(y = "Mean", x =input$subject, color = input$gender)) +
+      geom_point() +
+      geom_errorbar(aes(ymax = Max, ymin = Min), width = 0.35) +
+      coord_flip() +
+      theme_bw(base_size = 14) +
+      ylab(input$analyte) +
+      xlab("Subjects")+
+      scale_x_discrete(limits=plotData[,input$subject])
+```

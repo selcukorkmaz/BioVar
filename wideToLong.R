@@ -1,4 +1,4 @@
-# data = read.table("~/Downloads/RBC_data.txt", header = T, sep = "\t")
+# data = read.table("~/Documents/GitHub/BV/data/RBC_data.txt", header = T, sep = "\t")
 # head(data)
 # 
 # subject = "subject"

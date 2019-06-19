@@ -1,5 +1,5 @@
 
-normality <- function(data, subject, analyte){        
+normality <- function(data, subject, analyte, decimal){        
  
 if(nrow(data) > 0){   
  library(nortest)
@@ -36,7 +36,7 @@ if(nrow(data) > 0){
           test = "Shapiro-Wilk"
           naccept = naccept1
           nreject = nreject1
-          normalityRate = round(normalityRate*100,2)
+          normalityRate = round(normalityRate*100,decimal)
           
           resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual",Test = test, "# of acceptance of normality" = naccept, "# of rejection normality" = nreject, "Normality rate" = paste0("%",normalityRate), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
           rownames(resultStep1) = NULL
@@ -52,8 +52,8 @@ if(nrow(data) > 0){
           
           if (pval2 >= 0.05){
             
-            resultStep2 = cbind.data.frame(Step2 = "On mean values of subjects", Test = "Shapiro-Wilk", "Test statistic" = round(sw2$statistic,2), 
-                                            "p value" = round(pval2,2), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
+            resultStep2 = cbind.data.frame(Step2 = "On mean values of subjects", Test = "Shapiro-Wilk", "Test statistic" = round(sw2$statistic,decimal), 
+                                            "p value" = ifelse(pval2<0.001, "<0.001", round(pval2,3)), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
                                             "Final result" = "Analyses can be continued by Linear Mixed Effect Models or ANOVA using the original data.")
             rownames(resultStep2) = NULL
             # cat("\n----------------------------------------------------------------------------------\nSTEP 2. NORMALITY TEST:-ON MEAN VALUES OF SUBJECTS")
@@ -66,8 +66,8 @@ if(nrow(data) > 0){
             
             if (pval3 >= 0.05){
               
-              resultStep2 = cbind.data.frame(Step2 = paste0("On mean values of subjects. Normality assumption is violated on mean values of subjects for ", nameanalyte, ". Kolmogorov-Smirnov's normality test is applied. The data is assumed to be normal on mean values of subjects for ", nameanalyte), Test = "Kolmogorov-Smirnov", "Test statistic" = round(ks1$statistic,2), 
-                                              "p value" = round(pval3,2), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
+              resultStep2 = cbind.data.frame(Step2 = paste0("On mean values of subjects. Normality assumption is violated on mean values of subjects for ", nameanalyte, ". Kolmogorov-Smirnov's normality test is applied. The data is assumed to be normal on mean values of subjects for ", nameanalyte), Test = "Kolmogorov-Smirnov", "Test statistic" = round(ks1$statistic,decimal), 
+                                              "p value" = ifelse(pval3<0.001, "<0.001", round(pval3,3)), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
                                               "Final result" = "Analyses can be continued by Linear Mixed Effect Models or ANOVA using the original data.")
                
               # cat("\n----------------------------------------------------------------------------------\nSTEP 2. NORMALITY TEST:-ON MEAN VALUES OF SUBJECTS")
@@ -85,8 +85,8 @@ if(nrow(data) > 0){
                 
                 resultStep2 = cbind.data.frame(Step2 = paste0("On mean values of subjects (normality assumption is violated on mean values of subjects for ",
                                                                nameanalyte, ". Kolmogorov-Smirnov's normality test is applied. Normality assumption is violated again on mean values of subjects for ", nameanalyte, ". Logarithmic transformation is applied. The data is assumed to be normal on mean values of subjects for ", nameanalyte), 
-                                                Test = "Kolmogorov-Smirnov", "Test statistic" = round(sw3$statistic,2), 
-                                                "p value" = round(pval4,2), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
+                                                Test = "Kolmogorov-Smirnov", "Test statistic" = round(sw3$statistic,decimal), 
+                                                "p value" = ifelse(pval4<0.001, "<0.001", round(pval4,3)), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
                                                 "Final result" = "Analyses can be continued by Linear Mixed Effect Models or ANOVA using the log-transformed data.")
                 
                 # 
@@ -136,11 +136,11 @@ if(nrow(data) > 0){
             logmeanval = log(meanval)
             sw7 = shapiro.test(logmeanval)
             pval7 = sw7$p.value
-            normalityRate = round(normalityRate*100,2)
+            normalityRate = round(normalityRate*100,decimal)
             
             if (pval7 >= 0.05){
               resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied",
-                                             Test = test, "# of acceptance of normality" = naccept2, 
+                                             Test = "Kolmogorov-Smirnov", "# of acceptance of normality" = naccept2, 
                                              "# of rejection normality" = nreject2, "Normality rate" = paste0("%",normalityRate), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
               rownames(resultStep1) = NULL
               
@@ -157,7 +157,7 @@ if(nrow(data) > 0){
               
               
               resultStep2 = cbind.data.frame(Step2 = "On mean values of subjects", Warning = "Logarithmic transformation is applied", Test = "Shapiro-Wilk", "Test statistic" = round(sw7$statistic,2), 
-                                             "p value" = round(pval7,2), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
+                                             "p value" = ifelse(pval7<0.001, "<0.001", round(pval7,3)), Comment = paste0("The data is assumed to be normal on mean values of subjects for ", nameanalyte),  
                                              "Final result" = "Analyses can be continued by Linear Mixed Effect Models or ANOVA using the log-transformed data.")
               rownames(resultStep2) = NULL
               
@@ -170,7 +170,7 @@ if(nrow(data) > 0){
               
             } else {
               
-              normalityRate = round(100*(naccept1/(naccept1+nreject1)),2)
+              normalityRate = round(100*(naccept1/(naccept1+nreject1)),decimal)
               
               resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied", Test = "Shapiro-Wilk", 
                                              "# of acceptance of normality" = naccept1, "# of rejection normality" = nreject1, "Normality rate" = paste0("%",normalityRate), Comment = paste0("The data is assumed to be normal on set of results from each individual for ", nameanalyte) )
@@ -186,7 +186,7 @@ if(nrow(data) > 0){
             }
           } else {
             
-            normalityRate = round(100*(naccept1/(naccept1+nreject1)),2)
+            normalityRate = round(100*(naccept1/(naccept1+nreject1)),decimal)
             resultStep1 = cbind.data.frame(Step1 = "On set of results from each individual", Warning = "Logarithmic transformation is applied", Test = "Shapiro-Wilk", "# of acceptance of normality" = naccept1, 
                                            "# of rejection normality" = nreject1, "Normality rate" = paste0("%",normalityRate), 
                                             Comment = paste0("The data is not normally distributed for ", nameanalyte), "Final result" =  "Analyses should not be continued by Linear Mixed Effect Models or ANOVA")

@@ -1,14 +1,12 @@
 library(shiny)
 shinyUI(pageWithSidebar(
   
-  
-  headerPanel("Biological Variation Tool v.0.9"),
+  headerPanel("Biological Variation Tool v.1.0"),
   
   sidebarPanel(width=3,
     conditionalPanel(condition="input.tabs1=='Introduction'"
     ),
-    
-    
+
     conditionalPanel(condition="input.tabs1=='Analysis'",
                      
                      h4("Select Variables"),
@@ -19,40 +17,44 @@ shinyUI(pageWithSidebar(
                      selectInput(inputId = "time", label = "Time", multiple = FALSE, choices = NULL, selected = NULL),
                      selectInput(inputId = "replicate", label = "Replicate", multiple = FALSE, choices = NULL, selected = NULL),
               
-                      checkboxInput("subsetAnalysis", "Subset Analysis", value = TRUE),
+                      # checkboxInput("subsetAnalysis", "Subset Analysis", value = TRUE),
+                     selectInput(inputId = "subgroupTest", label = "Select subgroup test", multiple = FALSE, choices = c("Student's t" = "ttest", "Mann-Whitney U" = "mw")),
+
+                     # selectInput(inputId = "method", label = "Analysis method", multiple = FALSE, choices = c("CV-ANOVA" = "cvAnova", "ANOVA" = "lme"), selected = "lme"),
+
+                     selectInput(inputId = "showResult", label = "Choose a calculation method", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "lnTransformed", "Transform back to original" = "transformBack", "CV" = "cv"), selected = "original"),
                      
-                     selectInput(inputId = "method", label = "Analysis method", multiple = FALSE, choices = c("ANOVA" = "anova", "LME" = "lme"), selected = "ANOVA"),
+                     checkboxInput(inputId = "advancedOptions", label = "Advanced Options", value = FALSE),
                      
-                     selectInput(inputId = "showResults", label = "Show results for", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "transformed", "Back log-transformed" =  "transformBack"), selected = "Original"),
+                     conditionalPanel(condition = "input.advancedOptions",
+                                      
+                         checkboxInput(inputId = "outlierOptions", label = "Options for outliers", value = FALSE),
+                                      
+                              conditionalPanel(condition = "input.outlierOptions",
+                                               
+                                               radioButtons("step1Options",  "Remove outliers at step 1", choices = c("Remove outliying subjects" = "subjects",  "Remove outlying replicates" = "replicates", "Do not remove any outliers" = "none" )),
+                                               checkboxInput("step2Options", "Remove outlying subjects at step 2", TRUE),
+                                               checkboxInput("step3Options", "Remove outlying subjects at Step 3", TRUE)
+                                               
+                                               ),
+                                      
+                     sliderInput("decimal", "Decimals", 0, 10, 3),
+                     selectInput(inputId = "alphaLevel", label = "Alpha (type I error)", multiple = FALSE, choices = c(0.10, 0.05, 0.01), selected = 0.05)
                      
+                     ),
                      
                      actionButton(inputId = "run",  label = "Run Analysis", icon = icon("play", lib = "glyphicon"))
                      
-                     
     ),
-    
-    
-    
+
     conditionalPanel(condition="input.tabs1=='Manual'"
     ),
 
-    
-    # conditionalPanel(condition="input.tabs1=='Citation'"
-    #                  
-    # ),
-    
     conditionalPanel(condition="input.tabs1=='Outlier detection'",
                     
-                     
                      actionButton(inputId = "applyOD",  label = "Apply", icon = icon("play", lib = "glyphicon"))
-                     
-                     
+
     ),
-    
-    
-    # conditionalPanel(condition="input.tabs1=='Authors & News'"
-    # 
-    # ),
     
     conditionalPanel(condition="input.tabs1=='Data upload'",
                      h4("Input data"),
@@ -111,7 +113,6 @@ shinyUI(pageWithSidebar(
                                       
                                       ),
                                       
-                                      
                                       textInput(inputId = "analyteWide", label = "Analyte"),
                                       selectInput(inputId = "subjectWide", label = "Subject", multiple = FALSE, choices = NULL, selected = NULL),
                                       selectInput(inputId = "genderWide", label = "Gender", multiple = FALSE, choices = NULL, selected = NULL),
@@ -122,86 +123,15 @@ shinyUI(pageWithSidebar(
                                       br(),
                                       
                                       actionButton(inputId = "runWideToLong",  label = "Convert to long format", icon = icon("play", lib = "glyphicon"))
-                                      # HTML('<p>You can upload your data as separated by comma, tab, semicolon or space.</p>'),
-                                      # HTML('<p>Note: First row must be header.</p>'),
-                                      
-                                      
-                                      # h4("Select Variables"),
-                                      # 
-                                      # selectInput(inputId = "analyte", label = "Analyte", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "subject", label = "Subject", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "gender", label = "Gender", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "time", label = "Time", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "replicate", label = "Replicate", multiple = FALSE, choices = NULL, selected = NULL)
-                                      
+                              
                      )
-                     # conditionalPanel(condition="input.dataInput=='3'",
-                     #                  h5("Paste or enter your data below:"),
-                     #                  tags$textarea(id="myData", rows=10, cols=5, ""),
-                     #                  actionButton('clearText_button','Clear data'),
-                     #                  HTML('<br>'),
-                     #                  HTML('<br>'),
-                     #                  
-                     #                  #radioButtons("firstLastPaste", "Group variable (default is none)", list("None"=0, "First column"=1, "Last column"=2),selected=0), ## firstLast variable for pasted data.
-                     #                  #radioButtons("firstLast", "Group variable(default is last column)", list("None"=0, "First column"=1, "Last column"=2),selected=2),
-                     #                  radioButtons("fileSepP", "Separator:", list("Comma"=1,"Tab"=2,"Semicolon"=3), selected=2),
-                     #                  HTML('<p>You can paste or manually enter your data as separated by comma, tab or semicolon.</p>'),
-                     #                  HTML('<p>Note: First row must be header.</p>')
-                     # )
-    ),
-    
-    
-    conditionalPanel(condition="input.tabs1==''",
-                     
-                     conditionalPanel(condition = "input.firstLast != '0'",
-                                      selectizeInput("subsetUni", "Select a sub-group for tests and plots", choices = NULL, multiple = FALSE)
-                     ),
-                     
-                     h5("Choose a univariate normality test"),
-                     selectizeInput("normTest", "", choices = c("Shapiro-Wilk"="SW", "Cramer-von Mises"="CVM", "Lilliefors"="Lillie", "Shapiro-Francia"="SF", "Anderson-Darling"="AD"), multiple = FALSE, selected = "SW"),
-                     HTML('<br>'),
-                     h5("Choose a univariate plot"),
-                     selectizeInput("normPlot", "", choices = c("Q-Q plot"="qqplot", "Histogram"="histogram", "Box-plot "="box", "Scatterplot matrix"="scatter"), multiple = FALSE, selected = "qqplot"),
-                     
-                     conditionalPanel(condition="input.normPlot=='box'",
-                                      helpText("Note: Box-plots are based on standardized values (centered and scaled).")
-                     ),
-                     
-                     HTML('<br>'),
-                     fluidRow(column(5,sliderInput("myheightUni", "Plot height:", value=400, min=200, max=1200 )),
-                              column(2),
-                              column(5,sliderInput("mywidthUni", "Plot width:", value=600, min=200, max=1200))
-                     )),
-    
-    
-    
-    
-    conditionalPanel(condition="input.tabs1=='Normality Test'",
-                     
-                     
-                     
-                     
-                     actionButton(inputId = "applyNormality",  label = "Apply", icon = icon("play", lib = "glyphicon"))
-                     
-                     
-                     
-                     
-    ),
-    
-    
-    conditionalPanel(condition="input.tabs1=='Subset Analysis'",
-                     
-              checkboxInput("logtransform2", "Logarithmic Transformation", value = FALSE),       
-                     
-              actionButton(inputId = "applySubset",  label = "Apply", icon = icon("play", lib = "glyphicon"))
-                     
-                     
+               
     )
     
+    
+    
+    
   ),
-  
-  
-  
   
   mainPanel(
     tabsetPanel(
@@ -219,7 +149,7 @@ of the results from each subject and  (iii) outliers in the variances of the res
           HTML('Subset analysis will be performed to compare (i) means and (i) average within-subject total variances of gender groups.</p>'),
           
           HTML('Analysis of variance or linear mixed effects models will be performed to obtain coefficient of variation results, ANOVA table and quality measures for all subjects, 
-              males and females separately. Fo further details please see Braga and Panteghini [1].</p>'),
+              males and females separately. For further details please see Braga and Panteghini [1].</p>'),
 
 
           HTML('<left><img src="intro/intro1.png" width = "50%"></left><left><img src="intro/intro3.png" width = "50%"></left>'),
@@ -245,13 +175,13 @@ of the results from each subject and  (iii) outliers in the variances of the res
 
                        # h4(textOutput(outputId = "outlierTitle")),
                        h4(textOutput(outputId = "outlierTitleStep1")),
-                       DT::dataTableOutput("outlierStep1"),
+                       DT::dataTableOutput("outlierStepRes1"),
         
                        h4(textOutput(outputId = "outlierTitleStep2")),
-                       DT::dataTableOutput("outlierStep2"),
+                       DT::dataTableOutput("outlierStepRes2"),
         
                         h4(textOutput(outputId = "outlierTitleStep3")),
-                       DT::dataTableOutput("outlierStep3")
+                       DT::dataTableOutput("outlierStepRes3")
                
                ),
                
@@ -266,12 +196,18 @@ of the results from each subject and  (iii) outliers in the variances of the res
                ),
                
                tabPanel('Subset', 
-               
+                        
                    h4(textOutput(outputId = "subsetTitleStep1")),
                    DT::dataTableOutput("ttest"),
                    
                    h4(textOutput(outputId = "subsetTitleStep2")),
-                   DT::dataTableOutput("ttestSIA")
+                   DT::dataTableOutput("ttestSIA"),
+                   
+                   h4(textOutput(outputId = "subsetTitleStep3")),
+                   DT::dataTableOutput("homogenity"),
+                   
+                   h4(textOutput(outputId = "subsetTitleStep4")),
+                   DT::dataTableOutput("homogenitySIA")
                
                ),
                
@@ -295,7 +231,7 @@ of the results from each subject and  (iii) outliers in the variances of the res
                      
                   ),
                   
-                  tabPanel('Gender 1', 
+                  tabPanel('Subgroup 1', 
                            
                        h4(textOutput(outputId = "anovaTitleGender1Step1")),
                        DT::dataTableOutput("CVResultsGender1"),
@@ -308,7 +244,7 @@ of the results from each subject and  (iii) outliers in the variances of the res
                        
                   ),
                   
-                  tabPanel('Gender 2', 
+                  tabPanel('Subgroup 2', 
               
                    h4(textOutput(outputId = "anovaTitleGender2Step1")),
                    DT::dataTableOutput("CVResultsGender2"),
@@ -325,84 +261,35 @@ of the results from each subject and  (iii) outliers in the variances of the res
                tabPanel('Plots',
                         
                       h4(textOutput(outputId = "plotTitleStep0")),  
+                      downloadButton("downloadPlotStep0", "Download Plot"),
                       shiny::plotOutput("plotStep0"),
                       
+                      
                       h4(textOutput(outputId = "plotTitleStep1")),  
+                      downloadButton("downloadPlotStep1", "Download Plot"),
                       shiny::plotOutput("plotStep1"),
                       
                       h4(textOutput(outputId = "plotTitleStep2")),  
+                      downloadButton("downloadPlotStep2", "Download Plot"),
                       shiny::plotOutput("plotStep2"),
                       
                       h4(textOutput(outputId = "plotTitleStep3")),  
+                      downloadButton("downloadPlotStep3", "Download Plot"),
                       shiny::plotOutput("plotStep3")
                 ),
                
                
                tabPanel('Report',
                         
-                        # downloadButton("downloadReport", "Download report")
-                        radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
-                                     inline = TRUE),
-                        downloadButton('downloadReport')
+                        downloadButton("downloadReport", "Download report"),
+                        radioButtons('format', 'Document format', c('HTML','PDF',  'Word'),
+                                     inline = TRUE)
+                        # downloadButton('downloadReport', "Download HTML Report")
                         
                )
-               
-               
                )
-               
-              
                ),
       
-      
-      
-      # tabPanel("Outlier detection",
-      #          
-      #          
-      #          h4("Step 1: Outliers in the sets of duplicate results using the Cochran test"),
-      #          DT::dataTableOutput("outlierStep1"),
-      #          br(),
-      #          
-      #          h4("Step 2: Outliers in the variances of the results from each subject using the Cochran test"),
-      #          DT::dataTableOutput("outlierStep2"),
-      #          br(),
-      #          
-      #          h4("Step 3: Reed's criterion to see if any individual has a mean value that differs greatly from the other subjects"),
-      #          DT::dataTableOutput("outlierStep3")
-      #          
-      # ),
-      
-      
-      # tabPanel("Normality Test",
-      #          
-      #          h4("Step1: On set of results from each individual."),
-      #          DT::dataTableOutput("normalityStep1"),
-      #          br(),
-      #          
-      #          h4("Step 2: On mean values of subjects"),
-      #          DT::dataTableOutput("normalityStep2")
-      #          
-      # ),
-      
-      
-      # tabPanel("Subset Analysis",
-      #          # h4("Table 1. Barttlet's Homogenity Test"),
-      #          # DT::dataTableOutput("homogenity"),
-      #          # br(),
-      #          
-      #          h4("Table 1. Student's t test for mean differences of gender"),
-      #          DT::dataTableOutput("ttest"),
-      #          
-      #          # h4("Table 3: S2I+A On set of results from each individual."),
-      #          # DT::dataTableOutput("homogenitySIA"),
-      #           br(),
-      #          
-      #          h4("Table 2: Student's t test for average within-subject total variance"),
-      #          DT::dataTableOutput("ttestSIA")
-      # ),
-      
-      
-      # tabPanel("Analysis of Variance"
-      # ),
       
       tabPanel("Manual",
                h5("Usage of the web-tool"),
@@ -450,86 +337,7 @@ of the results from each subject and  (iii) outliers in the variances of the res
                HTML('<center><img src="manual/report.png" width = "100%"></center>')
                
       ),
-      
-      # tabPanel("Authors & News",
-      #          h4("Authors"),
-      #          HTML('<p><a href="http://yunus.hacettepe.edu.tr/~selcuk.korkmaz/" target="_blank"> <b>Selcuk Korkmaz</b></a><p>'),
-      #          HTML('<p>Hacettepe University Faculty of Medicine <a href="http://www.biostatistics.hacettepe.edu.tr" target="_blank"> Department of Biostatistics</a><p>'),
-      #          HTML('<p><a href="mailto:selcuk.korkmaz@hacettepe.edu.tr" target="_blank">selcuk.korkmaz@hacettepe.edu.tr</a><p>'),
-      #          HTML('<p><a href="http://www.biostatistics.hacettepe.edu.tr/cv/Dincer_Goksuluk_CV_Eng.pdf" target="_blank"> <b>Dincer Goksuluk</b></a><p>'),
-      #          HTML('<p>Hacettepe University Faculty of Medicine <a href="http://www.biostatistics.hacettepe.edu.tr" target="_blank"> Department of Biostatistics</a><p>'),
-      #          HTML('<p><a href="mailto:dincer.goksuluk@hacettepe.edu.tr" target="_blank">dincer.goksuluk@hacettepe.edu.tr</a><p>'),
-      #          #HTML('<br>'),
-      #          #h4("Contributors"),
-      #          #h5("Gokmen Zararsiz"),
-      #          HTML('<p><a href="http://www.biostatistics.hacettepe.edu.tr/cv/Gokmen_Zararsiz_CV_Eng.pdf" target="_blank"> <b>Gokmen Zararsiz</b></a><p>'),
-      #          HTML('<p>Hacettepe University Faculty of Medicine <a href="http://www.biostatistics.hacettepe.edu.tr" target="_blank"> Department of Biostatistics</a><p>'),
-      #          HTML('<p><a href="mailto:gokmen.zararsiz@hacettepe.edu.tr" target="_blank">gokmen.zararsiz@hacettepe.edu.tr</a><p>'),
-      #          h5("Izzet Parug Duru"),
-      #          HTML('<p>Marmara University Faculty of Arts and Sciences<a href="http://fzk.fef.marmara.edu.tr/en/" target="_blank"> Department of Physics</a><p>'),
-      #          HTML('<p><a href="mailto:izzet.duru@gedik.edu.tr" target="_blank">izzet.duru@gedik.edu.tr</a><p>'),
-      #          h5("Vahap Eldem"),
-      #          HTML('<p>Istanbul University Faculty of Science <a href="http://fen.istanbul.edu.tr/biyoloji/#" target="_blank"> Department of Biology</a><p>'),
-      #          HTML('<p><a href="mailto:vahap.eldem@istanbul.edu.tr" target="_blank">vahap.eldem@istanbul.edu.tr</a><p>'),
-      #          
-      #          HTML('<br>'),
-      #          
-      #          
-      #          h4("News"),
-      #          
-      #          h5("Version 1.6 (June 9, 2015)"),
-      #          HTML('<p>(1) Advanced options have been added for both perspective and contour plots.<p>'),
-      #          HTML('<br>'),
-      #          
-      #          h5("Version 1.5 (June 2, 2015)"),
-      #          HTML('<p>(1) Advanced options have been added for the multivariate outlier detection.<p>'),
-      #          HTML('<p> (2) Bug fixes.<p>'),
-      #          HTML('<br>'),
-      #          
-      #          h5("Version 1.4 (January 20, 2015)"),
-      #          HTML('<p>(1) <a href="http://journal.r-project.org/archive/2014-2/korkmaz-goksuluk-zararsiz.pdf" target="_blank">MVN paper </a> published at The R Journal. The complete reference information is at the <b>Citation</b> tab <p>'),
-      #          HTML('<p> (2) Minor improvements and fixes.<p>'),
-      #          HTML('<br>'),
-      #          
-      #          h5("Version 1.3 (November 20, 2014)"),
-      #          HTML('<p>Univariate descriptive statistics, tests and plots have been added.<p>'),
-      #          
-      #          HTML('<br>'),
-      #          h5("September 12, 2014"),
-      #          HTML('<p>MVN web-tool presented at 16th National Biostatistics Congress in Antalya.<p>'),
-      #          
-      #          HTML('<br>'),
-      #          h5("Version 1.2 (June 8, 2014)"),
-      #          HTML('<p>(1) Sub-group analysis has been added.<p>'),
-      #          
-      #          HTML('<br>'),
-      #          h5("Version 1.1 (May 13, 2014)"),
-      #          HTML('<p>(1) Three different outlier detection methods, including Mahalanobis distance, adjusted quantile and PCOut, are available now. <p>'),
-      #          HTML('<p>(2) New data set without outliers can be downloaded. <p>'),
-      #          
-      #          HTML('<br>'),
-      #          h5("Version 1.0 (March 10, 2014)"),
-      #          HTML('<p>(1) Web-tool version of the <a href="http://cran.r-project.org/web/packages/MVN/index.html" target="_blank">MVN </a> package has been released. <p>'),
-      #          
-      #          
-      #          HTML('<br>'),
-      #          
-      #          h5("Other Tools"),
-      #          
-      #          HTML('<p><a href="http://www.biosoft.hacettepe.edu.tr/easyROC/" target="_blank"> <b>easyROC: a web-tool for ROC curve analysis </b></a><p>'),
-      #          HTML('<p><a href="http://www.biosoft.hacettepe.edu.tr/MLViS/" target="_blank"> <b>MLViS: machine learning-based virtual screening tool </b></a><p>'),
-      #          HTML('<p><a href="http://www.biosoft.hacettepe.edu.tr/DDNAA/" target="_blank"> <b>DDNAA: Decision support system for differential diagnosis of nontraumatic acute abdomen </b></a><p>'),
-      #          HTML('<br>'),
-      #          
-      #          
-      #          
-      #          h6("Please feel free to send us bugs and feature requests.")
-      #          
-      # ),
-      
-      # tabPanel("Citation",
-      #          verbatimTextOutput("cite")
-      # ),
+     
       
       id="tabs1"
     ),
@@ -545,7 +353,8 @@ of the results from each subject and  (iii) outliers in the variances of the res
       tags$link(rel = "shortcut icon", href = "favicon-2.ico"))
     
   )
-))
+ )
+)
 
 
 
