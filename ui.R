@@ -1,7 +1,7 @@
 library(shiny)
 shinyUI(pageWithSidebar(
   
-  headerPanel("Biological Variation Tool v.1.0"),
+  headerPanel("BioVar: Biological Variation Analysis Tool v.1.0"),
   
   sidebarPanel(width=3,
     conditionalPanel(condition="input.tabs1=='Introduction'"
@@ -32,9 +32,9 @@ shinyUI(pageWithSidebar(
                                       
                               conditionalPanel(condition = "input.outlierOptions",
                                                
-                                               radioButtons("step1Options",  "Remove outliers at step 1", choices = c("Remove outliying subjects" = "subjects",  "Remove outlying replicates" = "replicates", "Do not remove any outliers" = "none" )),
+                                               radioButtons("step1Options",  "Remove outliers at step 1", choices = c("Remove outlying subjects" = "subjects",  "Remove outlying replicates" = "replicates", "Do not remove any outliers" = "none" )),
                                                checkboxInput("step2Options", "Remove outlying subjects at step 2", TRUE),
-                                               checkboxInput("step3Options", "Remove outlying subjects at Step 3", TRUE)
+                                               checkboxInput("step3Options", "Remove outlying subjects at step 3", TRUE)
                                                
                                                ),
                                       
