@@ -27,7 +27,24 @@ source("wideToLong.R")
 shinyServer(function(input, output, session) {
   
   dataM <- reactive({  ## Data input.
-    if(input$dataInput==1){  ## Load example data.
+    
+  if(input$selectData==2){  ## Example data
+    
+    # if(input$sampleData==1){  ## Long Format
+    #   
+      data <- read.table("longFormat.txt", header=TRUE)
+      
+    # }
+    
+    # else if(input$sampleData==2){  ## Wide Format
+    #   
+    #   data <- read.table("wideFormat.txt", header=TRUE, sep = "\t")
+    #   
+    # }
+  }
+    
+  else if(input$selectData==1){  ## Upload Data
+    if(input$dataInput==1){  ## Long Format
       
       inFile <- input$uploadLong
       
@@ -38,7 +55,7 @@ shinyServer(function(input, output, session) {
    
     }
     
-   else if(input$dataInput==2){  ## Upload data.
+   else if(input$dataInput==2){  ## Wide Format
       
       inFile <- input$uploadWide
       
@@ -54,7 +71,9 @@ shinyServer(function(input, output, session) {
     }
     
     else print("File is bigger than 10MB and will not be uploaded.")
-
+    
+    
+    }
   }
   )
   

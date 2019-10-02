@@ -58,11 +58,22 @@ shinyUI(pageWithSidebar(
     
     conditionalPanel(condition="input.tabs1=='Data upload'",
                      h4("Input data"),
-                     radioButtons("dataInput", "", list("Long format"=1,"Wide format"=2), selected=1),
+                     radioButtons("selectData", "", list("Upload a file" = 1, "Load example data" = 2), selected=1),
                      
+                     # conditionalPanel(condition="input.selectData=='2'",
+                     #                  h4("Select an example dataset:"),
+                     #                  radioButtons("sampleData", "", list("Long format"=1, "Wide format"=2), selected=1)
+                     # ),
 
-                     conditionalPanel(condition="input.dataInput=='1'",
+                     conditionalPanel(condition="input.selectData=='1'",
+                                      
+                                      h4("Select a data format:"),
+                                      
+                                      radioButtons("dataInput", "", list("Long format"=1,"Wide format"=2), selected=1),
+                                      
                                       h5("Upload a delimited text file: "),
+
+                                      conditionalPanel(condition="input.dataInput=='1'",
                                       
                                       fileInput("uploadLong", "", multiple = FALSE),
                                       #checkboxInput("groupVar", "Group variable (default is last column)", TRUE),
@@ -79,32 +90,13 @@ shinyUI(pageWithSidebar(
                                                        radioButtons("fileSepDF", "", list("Comma"=1,"Tab"=2,"Semicolon"=3,"Space"=4),selected=2)
                                                        
                                       )
-                                      
-                                      # HTML('<p>You can upload your data as separated by comma, tab, semicolon or space.</p>'),
-                                      # HTML('<p>Note: First row must be header.</p>'),
-                                      
-                                      
-                                      # h4("Select Variables"),
-                                      # 
-                                      # selectInput(inputId = "analyte", label = "Analyte", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "subject", label = "Subject", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "gender", label = "Gender", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "time", label = "Time", multiple = FALSE, choices = NULL, selected = NULL),
-                                      # selectInput(inputId = "replicate", label = "Replicate", multiple = FALSE, choices = NULL, selected = NULL)
-                                      
+
                      ),
                      
                      conditionalPanel(condition="input.dataInput=='2'",
-                                      h5("Upload a delimited text file: "),
-                                      
+
                                       fileInput("uploadWide", "", multiple = FALSE),
-                                      #checkboxInput("groupVar", "Group variable (default is last column)", TRUE),
-                                      #conditionalPanel(condition="input.groupVar",
-                                      #radioButtons("firstLast", "", list("None"=0, "First column"=1, "Last column"=2),selected=2)),
-                                      
-                                      #radioButtons("firstLastUpload", "Group variable (default is none)", list("None"=0, "First column"=1, "Last column"=2),selected=0),  ## firstLast variable for uploaded data.
-                                      #radioButtons("firstLast", "Group variable(default is last column)", list("None"=0, "First column"=1, "Last column"=2),selected=2),
-                                      
+                           
                                       checkboxInput("delimiter", "Delimiter"),
                                       
                                       conditionalPanel(condition="input.delimiter",
@@ -113,18 +105,19 @@ shinyUI(pageWithSidebar(
                                       
                                       ),
                                       
-                                      textInput(inputId = "analyteWide", label = "Analyte"),
-                                      selectInput(inputId = "subjectWide", label = "Subject", multiple = FALSE, choices = NULL, selected = NULL),
-                                      selectInput(inputId = "genderWide", label = "Gender", multiple = FALSE, choices = NULL, selected = NULL),
-                                      selectInput(inputId = "timeRange", label = "Time", multiple = TRUE, choices = NULL, selected = NULL),
-                                      selectInput(inputId = "replicateWide", label = "Replicate", multiple = FALSE, choices = NULL, selected = NULL),
+                                      textInput(inputId = "analyteWide", label = "Enter an analyte name"),
+                                      selectInput(inputId = "subjectWide", label = "Select header for subject", multiple = FALSE, choices = NULL, selected = NULL),
+                                      selectInput(inputId = "genderWide", label = "Select header for gender", multiple = FALSE, choices = NULL, selected = NULL),
+                                      selectInput(inputId = "replicateWide", label = "Select header for replicate", multiple = FALSE, choices = NULL, selected = NULL),
+                                      selectInput(inputId = "timeRange", label = "Select multiple time points", multiple = TRUE, choices = NULL, selected = NULL),
+                                      
                                       
                                       
                                       br(),
                                       
                                       actionButton(inputId = "runWideToLong",  label = "Convert to long format", icon = icon("play", lib = "glyphicon"))
                               
-                     )
+                     ))
                
     )
     
@@ -330,7 +323,16 @@ of the results from each subject and  (iii) outliers in the variances of the res
                
                br(),
                HTML('<p><b>(vii) get plots:</b></p>'),
-               HTML('<center><img src="manual/plots.png" width = "100%"></center>'),
+               HTML('<center><img src="manual/plots1.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<center><img src="manual/plots2.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<center><img src="manual/plots3.png" width = "100%"></center>'),
+               
+               br(),
+               HTML('<center><img src="manual/plots4.png" width = "100%"></center>'),
 
                br(),
                HTML('<p><b>(viii) generate and download the report for the analyte to be analyzed:</b></p>'),
