@@ -118,8 +118,8 @@ shinyServer(function(input, output, session) {
   observe({
     
     updateSelectInput(session, "analyte", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[5])
-    updateSelectInput(session, "time", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[3])
-    updateSelectInput(session, "replicate", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[4])
+    updateSelectInput(session, "time", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[4])
+    updateSelectInput(session, "replicate", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[3])
     updateSelectInput(session, "subject", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[1])
     updateSelectInput(session, "gender", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[2])
     
