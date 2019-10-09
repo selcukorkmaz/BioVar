@@ -275,7 +275,7 @@ of the results from each subject and  (iii) outliers in the variances of the res
                tabPanel('Report',
                         
                         downloadButton("downloadReport", "Download report"),
-                        radioButtons('format', 'Document format', c('HTML','PDF',  'Word'),
+                        radioButtons('format', 'Document format', c('HTML'),#'PDF',  'Word'),
                                      inline = TRUE)
                         # downloadButton('downloadReport', "Download HTML Report")
                         

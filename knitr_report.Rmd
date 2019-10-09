@@ -1,21 +1,21 @@
 ---
-title: "Biological Variation Report for"
+title: "Biological Variation Report for `r input$analyte`"
 always_allow_html: yes
 output: pdf_document
 ---
 
 
 ```{r hello-random, echo=FALSE}
-library(DT)
-library(shiny)
-library(lme4)
-library(multcomp)
-library(nlme)
-library(ggplot2)
-library(dplyr)
-library(prospectr)
-library(nortest)
-library(knitr)
+# library(DT)
+# library(shiny)
+# library(lme4)
+# library(multcomp)
+# library(nlme)
+# library(ggplot2)
+# library(dplyr)
+# library(prospectr)
+# library(nortest)
+# library(knitr)
 pxtablek <- function(x, ...) { 
 	if(class(x)=='list'){
   		print(xtable::xtable(x[[1]], digits=x$digits, caption=paste('</br>',x$caption)  ),type='html', ...) 
@@ -27,7 +27,7 @@ opts_chunk$set(echo=FALSE, results='asis',fig.path='tempFiguresForKnitrReport/',
 ```
 
 
-This report was created using the **BV** tool for analyzing biological variation data. **BV** is developed by **Turcosa Analytics** and can be accessed online at http://opensoft.turcosa.com.tr/BioVar 
+This report was created using the **BV** tool for analyzing biological variation data. **BV** is developed by **Turcosa Analytics** and can be accessed online at http://opensoft.turcosa.com.tr/BioVar/ 
 
 Additional documentation for the **BV**, including instructions on how to download the application for offline use, can be found at https://github.com/selcukorkmaz/BioVar
 
