@@ -6,16 +6,6 @@ output: pdf_document
 
 
 ```{r hello-random, echo=FALSE}
-# library(DT)
-# library(shiny)
-# library(lme4)
-# library(multcomp)
-# library(nlme)
-# library(ggplot2)
-# library(dplyr)
-# library(prospectr)
-# library(nortest)
-# library(knitr)
 pxtablek <- function(x, ...) { 
 	if(class(x)=='list'){
   		print(xtable::xtable(x[[1]], digits=x$digits, caption=paste('</br>',x$caption)  ),type='html', ...) 
@@ -54,7 +44,7 @@ For outlier identification, we used Cochran’s test to detect outliers among du
 ## 1.1. Table 1: Outliers in the sets of duplicate results using the Cochran test
 
 ```{r}
-datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+DT::datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 ```
 *******
 
@@ -62,7 +52,7 @@ datatable(outlierResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsiv
 ## 1.2. Table 2: Outliers in the variances of the results from each subject using the Cochran test
 
 ```{r}
-datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+DT::datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 ```
 *******
 
@@ -70,7 +60,7 @@ datatable(outlierResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsiv
 ## 1.3 Table 3: Outliers in the variances of the results from each subject using the Cochran test
 
 ```{r}
-datatable(outlierResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+DT::datatable(outlierResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 ```
 *******
 
@@ -80,13 +70,13 @@ For normality checking, first, we applied Shapiro–Wilk test to the set of resu
 
 ## 2.1. Table 1: On set of results from each individual
 ```{r}
-      datatable(normalityResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(normalityResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
 ## 2.2. Table 2: On mean values of subjects
 ```{r}
-      datatable(normalityResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(normalityResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
@@ -96,25 +86,25 @@ To compare the mean and average within-subject total variance values of gender g
 
 ## 3.1. Table 1: Student's t test for mean differences of gender
 ```{r}
-      datatable(subsetResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
 ## 3.2. Table 2: F test for average within-subject total variance
 ```{r}
-      datatable(subsetResults()[[4]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[4]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
 ## 3.3. Table 3: Homogeneity test for mean values of gender groups
 ```{r}
-      datatable(subsetResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
 ## 3.4. Table 4: Homogeneity test for average within-subject total variance
 ```{r}
-      datatable(subsetResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      DT::datatable(subsetResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
 
 ```
 
