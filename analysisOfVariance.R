@@ -1,13 +1,45 @@
+# data = read.table("~/Documents/GitHub/BV/data/example_data.txt",
+#                   header = T, sep = "\t")
+# head(data)
 # 
-# data = dataFull2
+# analyte = "Measurement"
+# subject = "Subject"
 # gender = "Gender"
+# replicate = "Replicate"
+# time = "Time"
+# decimal = 3
+# 
+# outlierS1 = "subjetcs"; outlierS2 = TRUE; outlierS3 = TRUE;
+# showResult = "original"
+# 
+# # data[,analyte] = log(data[,analyte])
+# 
+# 
+# 
+# 
+# 
+# head(data)
+# 
+# 
+# out = outlier(data = data, analyte=analyte, subject=subject, replicate=replicate,
+#               time=time, gender=gender, decimal =3, outlierS1 = "none", outlierS2 = F, outlierS3 = F,
+#               showResult = showResult)
+# 
+# data = out$dataWithoutOutliers
+# 
+# analyte = "value"
 # subject = "subject"
+# gender = "gender"
 # replicate = "replicate"
 # time = "time"
+# alpha = 0.05
+# CVresult = "original"
 # 
-# subset = TRUE; CVresult = "transformed"
+# head(data)
 # 
-# res = analysisOfVariance(data, gender, subject, replicate, time, method = "anova", CVresult = "transformBack", decimal = 3)
+# aov = analysisOfVariance(data, gender, subject, replicate, time, CVresult, decimal, alpha = alpha)
+# aov$resultsAllOriginalLme$rcvResult
+
 
 analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult, decimal, alpha = alpha){
   
@@ -21,36 +53,59 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
   lowerMean_title = paste0("Lower Limit (",(1-alpha)*100,"%)")
   upperMean_title = paste0("Upper Limit (",(1-alpha)*100,"%)")
   
-  
-  if(CVresult == "lnTransformed" || CVresult == "transformBack"){
 
-    data$value = log(data$value)
-
-  }
+  # if(CVresult == "lnTransformed" || CVresult == "transformBack"){
+  # 
+  #   data$value = log(data$value)
+  # 
+  # }
   
   data = data[,c("subject", "gender", "time", "replicate", "value")]
   
-  dataGender = split(data, data[,"gender"])
-    
+
+  
+  
   
 ######################### CV-ANOVA ###################################
          
-  if(CVresult == "cv"){
+  if(CVresult == "cv" || CVresult == "mom" || CVresult == "lnmom" ){
     
-    means = tapply(data$value, data$subject, mean)
+    # if(CVresult == "cv"){
+    #   
+    #   # 
+    #   # means = tapply(data$value, data[,subject], mean, na.rm = TRUE)
+    #   # 
+    #   # subjects = split(data, data[,subject])
+    #   # 
+    #   # 
+    #   # for(i in 1:length(means)){
+    #   #   
+    #   #   subjects[[i]]$value = subjects[[i]]$value / means[i] 
+    #   #   
+    #   # }
+    #   # 
+    #   # 
+    #   # data = do.call(rbind.data.frame, subjects)
+    #   # 
+    #   dataGender = split(data, data[,"gender"])
+    #   
+    # }
+    # 
+    # if(CVresult == "mom"){
+    #   
+    #   
+    #   # data = momTransformation(data = data, time = time, measure = "value", method ="mom")
+    #   dataGender = split(data, data[,"gender"])
+    #   
+    # }
     
-    subjects = split(data, data$subject)
-    
-    
-    for(i in 1:length(means)){
+    # if(CVresult == "lnmom"){
       
-      subjects[[i]][,"value"] = subjects[[i]][,"value"] / means[i] 
       
-    }
-    
-    
-    data = do.call(rbind.data.frame, subjects)
-    
+      # data = momTransformation(data = data, time = time, measure = "value", method ="lnmom")
+      dataGender = split(data, data[,"gender"])
+      
+    # }
     
     data[,"subject"] = as.factor(data[,"subject"])
     data[,"replicate"] = as.factor(data[,"replicate"])
@@ -71,7 +126,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     for(i in 1:length(ti)){
       
-      w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+      w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
       
     }
     
@@ -99,11 +154,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     
     
-    w1 = do.call(sum, w1List)
+    w1 = do.call("sum", w1List)
     w2 = sgConstant
-    w3 = do.call(sum, w3List)
+    w3 = do.call("sum", w3List)
     w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
-    w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
+    w2u = bv$dims$ngrps[[2]]/sum(1/(ti*(ti/(0.5*(ti)))))
     w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
     c2u = (w2u-w1u)/(w3u)
     c3u = w2u-1-c2u
@@ -150,13 +205,21 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     lower_analytical = ll_analytical/grandMean
     upper_analytical = ul_analytical/grandMean
     
-    sigma2_between = sigma_between^2
+    if(CVresult == "cv"){msu_between = 0}else{
+      
+      msu_between = sigma2_between*sgConstant + sigma2_analytical +  sigma2_within*2
+      
+    }
+    
+    
     sigma2_within = sigma_within^2
     sigma2_analytical = sigma_analytical^2
+    sigma2_between = (msu_between-sigma2_analytical-w1u*sigma2_within)#sigma_between^2
+    
     
     msu_within = 2*sigma2_within+sigma2_analytical
-    msu_between = sigma2_between*sgConstant + sigma2_analytical +  sigma2_within*2
     
+
     dfbetween = (bv$dims$ngrps[[2]]-1)
     dfwithin = (bv$dims$ngrps[[1]]-bv$dims$ngrps[[2]])
     dfanalytical = (bv$dims$ngrps[[1]])
@@ -200,8 +263,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     c34 = (sgConstant-2)/2
     c35 = sgConstant-1-c34
     
-    ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-    ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+    vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+    vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+    
+    ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+    ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
     
     lower_total = ll_total/grandMean
     upper_total = ul_total/grandMean
@@ -251,10 +317,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     ### Calculation of Reference Change Value (RCV) ###
     #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
     #two consecutive measurements from the same individual is significant or not.
-    RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+    RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
     
-    CVresults = data.frame(matrix(NA,1,10))
-    colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+    k = z*sqrt(2)
+    t1 = w3u-1
+    t2 = w3u
+    VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+    VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+    
+    lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+    upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+    
+    rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+    colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+    
+    CVresults = data.frame(matrix(NA,1,9))
+    colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
     CVresults[1,1] = "All Subjects"
     CVresults[1,2] = round(grandMean,decimal)
     CVresults[1,3] = round(llMean,decimal)
@@ -263,8 +341,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     CVresults[1,6] = round(CVi,decimal)
     CVresults[1,7] = round(CVg,decimal)
     CVresults[1,8] = round(II,decimal)
-    CVresults[1,9] = round(RCV,decimal)
-    CVresults[1,10] = nrow(data)
+    # CVresults[1,9] = NA
+    CVresults[1,9] = nrow(data)
     
     
     errorTable = matrix(NA,3,3)
@@ -286,7 +364,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
     
-    resultsAllCvAnova = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+    resultsAllCvAnova = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult=rcvResult)
     
     
     ################### Subset  Original ###############
@@ -303,6 +381,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       bv <- lme(value ~1, random=~1|subject/time, data=dataGender1)
       
       
+      
       N <- nrow(dataGender1)
       r <- length(unique(dataGender1[,"subject"]))
       ni <- as.numeric(table(dataGender1[ ,"subject"]))
@@ -317,7 +396,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       for(i in 1:length(ti)){
         
-        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
         
       }
       
@@ -344,9 +423,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       
       
-      w1 = do.call(sum, w1List)
+      w1 = do.call("sum", w1List)
       w2 = sgConstant
-      w3 = do.call(sum, w3List)
+      w3 = do.call("sum", w3List)
       w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
       w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
       w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -398,7 +477,10 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       sigma2_analytical = sigma_analytical^2
       
       msu_within = 2*sigma2_within+sigma2_analytical
-      msu_between = sigma2_between*sgConstant + sigma2_analytical +  sigma2_within*2
+      
+      if(CVresult == "cv"){msu_between = 0}else{
+        msu_between = sigma2_between*sgConstant + sigma2_analytical +  sigma2_within*2
+      }
       
       dfbetween = (bv$dims$ngrps[[2]]-1)
       dfwithin = (bv$dims$ngrps[[1]]-bv$dims$ngrps[[2]])
@@ -443,8 +525,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       c34 = (sgConstant-2)/2
       c35 = sgConstant-1-c34
       
-      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+      vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+      vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+      
+      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
       
       lower_total = ll_total/grandMean
       upper_total = ul_total/grandMean
@@ -491,10 +576,24 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       ### Calculation of Reference Change Value (RCV) ###
       #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
       #two consecutive measurements from the same individual is significant or not.
-      RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+      RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
       
-      CVresults = data.frame(matrix(NA,1,10))
-      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+      k = z*sqrt(2)
+      t1 = w3u-1
+      t2 = w3u
+      VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+      VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+      
+      lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      
+      rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+      colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+      
+      
+      
+      CVresults = data.frame(matrix(NA,1,9))
+      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
       CVresults[1,1] = gender1
       CVresults[1,2] = round(grandMean,decimal)
       CVresults[1,3] = round(llMean,decimal)
@@ -503,8 +602,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       CVresults[1,6] = round(CVi,decimal)
       CVresults[1,7] = round(CVg,decimal)
       CVresults[1,8] = round(II,decimal)
-      CVresults[1,9] = round(RCV,decimal)
-      CVresults[1,10] = nrow(dataGender1)
+      # CVresults[1,9] = NA
+      CVresults[1,9] = nrow(dataGender1)
       
       
       errorTable = matrix(NA,3,3)
@@ -527,7 +626,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
       
       
-      resultsCvAnovaGender1 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+      resultsCvAnovaGender1 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult=rcvResult)
       
       
       #################################### Gender = Gender 2 ############################
@@ -556,7 +655,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       for(i in 1:length(ti)){
         
-        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
         
       }
       
@@ -583,9 +682,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       
       
-      w1 = do.call(sum, w1List)
+      w1 = do.call("sum", w1List)
       w2 = sgConstant
-      w3 = do.call(sum, w3List)
+      w3 = do.call("sum", w3List)
       w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
       w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
       w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -636,7 +735,10 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       sigma2_analytical = sigma_analytical^2
       
       msu_within = 2*sigma2_within+sigma2_analytical
-      msu_between = sigma2_between*sgConstant + sigma2_analytical +  sigma2_within*2
+      
+      if(CVresult == "cv"){msu_between = 0}else{
+        msu_between = sigma2_between*sgConstant + sigma2_analytical +  sigma2_within*2
+      }
       
       dfbetween = (bv$dims$ngrps[[2]]-1)
       dfwithin = (bv$dims$ngrps[[1]]-bv$dims$ngrps[[2]])
@@ -681,8 +783,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       c34 = (sgConstant-2)/2
       c35 = sgConstant-1-c34
       
-      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+      vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+      vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+      
+      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
       
       lower_total = ll_total/grandMean
       upper_total = ul_total/grandMean
@@ -729,10 +834,23 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       ### Calculation of Reference Change Value (RCV) ###
       #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
       #two consecutive measurements from the same individual is significant or not.
-      RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+      RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
       
-      CVresults = data.frame(matrix(NA,1,10))
-      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+      k = z*sqrt(2)
+      t1 = w3u-1
+      t2 = w3u
+      VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+      VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+      
+      lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      
+      rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+      colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+      
+      
+      CVresults = data.frame(matrix(NA,1,9))
+      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
       CVresults[1,1] = gender2
       CVresults[1,2] = round(grandMean,decimal)
       CVresults[1,3] = round(llMean,decimal)
@@ -741,8 +859,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       CVresults[1,6] = round(CVi,decimal)
       CVresults[1,7] = round(CVg,decimal)
       CVresults[1,8] = round(II,decimal)
-      CVresults[1,9] = round(RCV,decimal)
-      CVresults[1,10] = nrow(datagender2)
+      # CVresults[1,9] = NA
+      CVresults[1,9] = nrow(datagender2)
       
       
       errorTable = matrix(NA,3,3)
@@ -765,7 +883,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
       
       
-      resultsCvAnovaGender2 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+      resultsCvAnovaGender2 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult = rcvResult)
       
       
       
@@ -789,6 +907,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     data[,"replicate"] = as.factor(data[,"replicate"])
     data[,"time"] = as.factor(data[,"time"])
     
+    dataGender = split(data, data[,"gender"])
     ## lme model
     
     bv <- lme(value ~1, random=~1|subject/time, data=data, method = "REML")
@@ -804,7 +923,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     for(i in 1:length(ti)){
       
-      w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+      w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
       
     }
     
@@ -830,9 +949,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     }
 
     # CI
-    w1 = do.call(sum, w1List)
+    w1 = do.call("sum", w1List)
     w2 = sgConstant
-    w3 = do.call(sum, w3List)
+    w3 = do.call("sum", w3List)
     w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
     w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
     w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -945,8 +1064,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     c34 = (sgConstant-2)/2
     c35 = sgConstant-1-c34
     
-    ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-    ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+    vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+    vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+    
+    ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+    ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
     
     lower_total = ll_total/grandMean
     upper_total = ul_total/grandMean
@@ -996,10 +1118,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     ### Calculation of Reference Change Value (RCV) ###
     #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
     #two consecutive measurements from the same individual is significant or not.
-    RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+    RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
     
-    CVresults = data.frame(matrix(NA,1,10))
-    colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+    k = z*sqrt(2)
+    t1 = w3u-1
+    t2 = w3u
+    VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+    VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+    
+    lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+    upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+    
+    rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+    colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+    
+    CVresults = data.frame(matrix(NA,1,9))
+    colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
     CVresults[1,1] = "All Subjects"
     CVresults[1,2] = round(grandMean,decimal)
     CVresults[1,3] = round(llMean,decimal)
@@ -1008,8 +1142,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     CVresults[1,6] = round(CVi,decimal)
     CVresults[1,7] = round(CVg,decimal)
     CVresults[1,8] = round(II,decimal)
-    CVresults[1,9] = round(RCV,decimal)
-    CVresults[1,10] = nrow(data)
+    # CVresults[1,9] = NA
+    CVresults[1,9] = nrow(data)
     
     
     errorTable = matrix(NA,3,3)
@@ -1031,7 +1165,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
     
-    resultsAllOriginalLme = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+    resultsAllOriginalLme = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult = rcvResult)
     
     
     ################### Subset  Original ###############
@@ -1064,7 +1198,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       for(i in 1:length(ti)){
         
-        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
         
       }
       
@@ -1091,9 +1225,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       
       
-      w1 = do.call(sum, w1List)
+      w1 = do.call("sum", w1List)
       w2 = sgConstant
-      w3 = do.call(sum, w3List)
+      w3 = do.call("sum", w3List)
       w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
       w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
       w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -1206,8 +1340,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       c34 = (sgConstant-2)/2
       c35 = sgConstant-1-c34
       
-      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+      vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+      vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+      
+      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
       
       lower_total = ll_total/grandMean
       upper_total = ul_total/grandMean
@@ -1254,10 +1391,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       ### Calculation of Reference Change Value (RCV) ###
       #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
       #two consecutive measurements from the same individual is significant or not.
-      RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+      RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
       
-      CVresults = data.frame(matrix(NA,1,10))
-      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+      k = z*sqrt(2)
+      t1 = w3u-1
+      t2 = w3u
+      VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+      VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+      
+      lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      
+      rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+      colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+      
+      CVresults = data.frame(matrix(NA,1,9))
+      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
       CVresults[1,1] = gender1
       CVresults[1,2] = round(grandMean,decimal)
       CVresults[1,3] = round(llMean,decimal)
@@ -1266,8 +1415,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       CVresults[1,6] = round(CVi,decimal)
       CVresults[1,7] = round(CVg,decimal)
       CVresults[1,8] = round(II,decimal)
-      CVresults[1,9] = round(RCV,decimal)
-      CVresults[1,10] = nrow(dataGender1)
+      # CVresults[1,9] = NA
+      CVresults[1,9] = nrow(dataGender1)
       
       
       errorTable = matrix(NA,3,3)
@@ -1290,7 +1439,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
       
       
-      resultsOriginalGenderLme1 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+      resultsOriginalGenderLme1 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult = rcvResult)
       
       
       #################################### Gender = Gender 2 ############################
@@ -1318,7 +1467,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       for(i in 1:length(ti)){
         
-        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
         
       }
       
@@ -1345,9 +1494,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       
       
-      w1 = do.call(sum, w1List)
+      w1 = do.call("sum", w1List)
       w2 = sgConstant
-      w3 = do.call(sum, w3List)
+      w3 = do.call("sum", w3List)
       w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
       w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
       w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -1459,8 +1608,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       c34 = (sgConstant-2)/2
       c35 = sgConstant-1-c34
       
-      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+      vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+      vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+      
+      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
       
       lower_total = ll_total/grandMean
       upper_total = ul_total/grandMean
@@ -1507,10 +1659,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       ### Calculation of Reference Change Value (RCV) ###
       #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
       #two consecutive measurements from the same individual is significant or not.
-      RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+      RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
       
-      CVresults = data.frame(matrix(NA,1,10))
-      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+      k = z*sqrt(2)
+      t1 = w3u-1
+      t2 = w3u
+      VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+      VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+      
+      lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      
+      rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+      colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+      
+      CVresults = data.frame(matrix(NA,1,9))
+      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
       CVresults[1,1] = gender2
       CVresults[1,2] = round(grandMean,decimal)
       CVresults[1,3] = round(llMean,decimal)
@@ -1519,8 +1683,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       CVresults[1,6] = round(CVi,decimal)
       CVresults[1,7] = round(CVg,decimal)
       CVresults[1,8] = round(II,decimal)
-      CVresults[1,9] = round(RCV,decimal)
-      CVresults[1,10] = nrow(datagender2)
+      # CVresults[1,9] = NA
+      CVresults[1,9] = nrow(datagender2)
       
       
       errorTable = matrix(NA,3,3)
@@ -1543,7 +1707,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
       
       
-      resultsOriginalGenderLme2 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+      resultsOriginalGenderLme2 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult=rcvResult)
       
       
       
@@ -1565,7 +1729,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     data[,"subject"] = as.factor(data[,"subject"])
     data[,"replicate"] = as.factor(data[,"replicate"])
     data[,"time"] = as.factor(data[,"time"])
-    
+    dataGender = split(data, data[,"gender"])
     bv <- lme(value ~1, random=~1|subject/time, data=data)
     
     N <- nrow(data)
@@ -1580,7 +1744,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     for(i in 1:length(ti)){
       
-      w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+      w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
       
     }
     
@@ -1607,9 +1771,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     
     
-    w1 = do.call(sum, w1List)
+    w1 = do.call("sum", w1List)
     w2 = sgConstant
-    w3 = do.call(sum, w3List)
+    w3 = do.call("sum", w3List)
     w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
     w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
     w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -1721,8 +1885,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     c34 = (sgConstant-2)/2
     c35 = sgConstant-1-c34
     
-    ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-    ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+    vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+    vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+    
+    ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+    ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
     
     lower_total = ll_total/grandMean
     upper_total = ul_total/grandMean
@@ -1774,10 +1941,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     ### Calculation of Reference Change Value (RCV) ###
     #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
     #two consecutive measurements from the same individual is significant or not.
-    RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+    RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
     
-    CVresults = data.frame(matrix(NA,1,10))
-    colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+    k = z*sqrt(2)
+    t1 = w3u-1
+    t2 = w3u
+    VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+    VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+    
+    lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+    upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+    
+    rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+    colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+    
+    CVresults = data.frame(matrix(NA,1,9))
+    colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II",  "n")
     CVresults[1,1] = "All Subjects"
     CVresults[1,2] = round(transformedMean,decimal)
     CVresults[1,3] = round(llTransformedMean,decimal)
@@ -1786,8 +1965,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     CVresults[1,6] = round(CVi,decimal)
     CVresults[1,7] = round(CVg,decimal)
     CVresults[1,8] = round(II,decimal)
-    CVresults[1,9] = round(RCV,decimal)
-    CVresults[1,10] = nrow(data)
+    # CVresults[1,9] = NA
+    CVresults[1,9] = nrow(data)
     
     
     errorTable = matrix(NA,3,3)
@@ -1808,7 +1987,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
     
     errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
     
-    resultsAllTransformBackLnLme = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+    resultsAllTransformBackLnLme = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable,rcvResult=rcvResult)
     
     
       
@@ -1837,7 +2016,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       for(i in 1:length(ti)){
         
-        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
         
       }
       
@@ -1864,9 +2043,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       
       
-      w1 = do.call(sum, w1List)
+      w1 = do.call("sum", w1List)
       w2 = sgConstant
-      w3 = do.call(sum, w3List)
+      w3 = do.call("sum", w3List)
       w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
       w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
       w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -1982,8 +2161,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       c34 = (sgConstant-2)/2
       c35 = sgConstant-1-c34
       
-      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+      vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+      vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+      
+      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
       
       lower_total = ll_total/grandMean
       upper_total = ul_total/grandMean
@@ -2035,10 +2217,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       ### Calculation of Reference Change Value (RCV) ###
       #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
       #two consecutive measurements from the same individual is significant or not.
-      RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+      RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
       
-      CVresults = data.frame(matrix(NA,1,10))
-      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+      k = z*sqrt(2)
+      t1 = w3u-1
+      t2 = w3u
+      VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+      VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+      
+      lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      
+      rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+      colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+      
+      CVresults = data.frame(matrix(NA,1,9))
+      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
       CVresults[1,1] = gender1
       CVresults[1,2] = round(transformedMean,decimal)
       CVresults[1,3] = round(llTransformedMean,decimal)
@@ -2047,8 +2241,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       CVresults[1,6] = round(CVi,decimal)
       CVresults[1,7] = round(CVg,decimal)
       CVresults[1,8] = round(II,decimal)
-      CVresults[1,9] = round(RCV,decimal)
-      CVresults[1,10] = nrow(dataGender1)
+      # CVresults[1,9] = NA
+      CVresults[1,9] = nrow(dataGender1)
       
       
       errorTable = matrix(NA,3,3)
@@ -2070,7 +2264,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
       
       
-      resultsTransformBackGenderLnLme1 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+      resultsTransformBackGenderLnLme1 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult=rcvResult)
       
       
       
@@ -2101,7 +2295,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       for(i in 1:length(ti)){
         
-        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(length(unique(data[,"time"])) - 1),ti[i])
+        w1List[[i]] = rep(((replicateNumber^2)*((1/ni[i])-(1/sum(ni))))/(bv$dims$ngrps[[2]]-1),ti[i])
         
       }
       
@@ -2128,9 +2322,9 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       
       
       
-      w1 = do.call(sum, w1List)
+      w1 = do.call("sum", w1List)
       w2 = sgConstant
-      w3 = do.call(sum, w3List)
+      w3 = do.call("sum", w3List)
       w1u = sum((1/ti))/sum((1/(ti*(ti/unlist(w1uList1)))))
       w2u = ti[1]/sum(1/(ti*(ti/(0.5*(ti)))))
       w3u = (bv$dims$ngrps[["time"]]-bv$dims$ngrps[["subject"]]) / sum((ti-1)/unlist(w3uList1))
@@ -2237,8 +2431,11 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       c34 = (sgConstant-2)/2
       c35 = sgConstant-1-c34
       
-      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(VLa))/sgConstant)
-      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(VLa2))/sgConstant)
+      vlTot = (g1^2)*(msu_between^2)+(g2^2)*(c2u^2)*(msu_within^2)+(g3^2)*(c3u^2)*(sigma2_analytical^2)
+      vuTot = (h1^2)*(msu_between^2)+(h2^2)*(c2u^2)*(msu_within^2)+(h3^2)*(c3u^2)*(sigma2_analytical^2)
+      
+      ll_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical- sqrt(vlTot))/sgConstant)
+      ul_total = sqrt((msu_between + c34*msu_within + c35*sigma2_analytical+ sqrt(vuTot))/sgConstant)
       
       lower_total = ll_total/grandMean
       upper_total = ul_total/grandMean
@@ -2290,10 +2487,22 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       ### Calculation of Reference Change Value (RCV) ###
       #RCV is also called as ‘critical difference (CD)’, and indicates whether the difference between
       #two consecutive measurements from the same individual is significant or not.
-      RCV = sqrt(2)*z*sqrt((CVa^2)+(CVi^2))
+      RCV = formatC(sqrt(2)*z*sqrt((CVa^2)+(CVi^2)), digits = decimal, format = "f")
       
-      CVresults = data.frame(matrix(NA,1,10))
-      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "RCV%", "n")
+      k = z*sqrt(2)
+      t1 = w3u-1
+      t2 = w3u
+      VLrcv = (g2^2)*(msu_within^2)+(g3^2)*(t1^2)*(sigma2_analytical^2)
+      VUrcv = (h2^2)*(msu_within^2)+(h3^2)*(t1^2)*(sigma2_analytical^2)
+      
+      lower_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical-1*sqrt(VLrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      upper_RCV = formatC(((k*(sqrt((msu_within+t1*sigma2_analytical+1*sqrt(VUrcv))/t2)))/grandMean)*100, digits = decimal, format = "f")
+      
+      rcvResult = cbind.data.frame(RCV, lower_RCV, upper_RCV)
+      colnames(rcvResult) = c("RCV (%)", "Lower limit (%)", "Upper limit (%)")
+      
+      CVresults = data.frame(matrix(NA,1,9))
+      colnames(CVresults) = c("Group", "Mean", lowerMean_title, upperMean_title, "CV_A%", "CV_I%", "CV_G%", "II", "n")
       CVresults[1,1] = gender2
       CVresults[1,2] = round(transformedMean,decimal)
       CVresults[1,3] = round(llTransformedMean,decimal)
@@ -2302,8 +2511,8 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       CVresults[1,6] = round(CVi,decimal)
       CVresults[1,7] = round(CVg,decimal)
       CVresults[1,8] = round(II,decimal)
-      CVresults[1,9] = round(RCV,decimal)
-      CVresults[1,10] = nrow(datagender2)
+      # CVresults[1,9] = NA
+      CVresults[1,9] = nrow(datagender2)
       
       
       errorTable = matrix(NA,3,3)
@@ -2325,7 +2534,7 @@ analysisOfVariance <- function(data, gender, subject, replicate, time, CVresult,
       errorTable = cbind.data.frame("Quality Levels" = row.names(errorTable), errorTable)
       
       
-      resultsTransformBackGenderLnLme2 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable)
+      resultsTransformBackGenderLnLme2 = list(CVTable = CVTable, CVresults = CVresults, errorTable = errorTable, rcvResult=rcvResult)
       
       
       

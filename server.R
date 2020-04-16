@@ -17,30 +17,26 @@ library(prospectr)
 library(nortest)
 library(knitr)
 source("outlier.R")
-source("normality.R")
+source("normalityNew.R")
 source("subsetAnalysis.R")
 source("analysisOfVariance.R")
 source("wideToLong.R")
+source("momTransformation.R")
+source("steadyState.R")
+source("bartlett.R")
 
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
-  dataM <- reactive({  ## Data input.
+  dataLoad <- reactive({  ## Data input.
     
   if(input$selectData==2){  ## Example data
     
-    # if(input$sampleData==1){  ## Long Format
-    #   
-      data <- read.table("longFormat.txt", header=TRUE)
+
+      data <- read.table("example_data.txt", header=TRUE)
       
-    # }
-    
-    # else if(input$sampleData==2){  ## Wide Format
-    #   
-    #   data <- read.table("wideFormat.txt", header=TRUE, sep = "\t")
-    #   
-    # }
+
   }
     
   else if(input$selectData==1){  ## Upload Data
@@ -74,9 +70,157 @@ shinyServer(function(input, output, session) {
     
     
     }
-  }
+    
+    return(data)
+    
+    }
   )
   
+  dataM <- reactive({ 
+    
+    data = dataLoad()
+    
+    if((input$showResult == "lnTransformed" || input$showResult == "transformBack")  && input$run){
+      
+      data[,input$analyte] = log(data[,input$analyte])
+      
+    }
+    
+    if(input$showResult == "cv" && input$run){
+      
+      
+      means = tapply(data[,input$analyte] , data[,input$subject], mean, na.rm = TRUE)
+      
+      subjects = split(data, data[,input$subject])
+      
+      
+      for(i in 1:length(means)){
+        
+        subjects[[i]][,input$analyte] = subjects[[i]][,input$analyte] / means[i] 
+        
+      }
+      
+      
+      data = do.call(rbind.data.frame, subjects)
+      
+      
+    }
+    
+    if(input$showResult == "mom"  && input$run){
+      
+      data = momTransformation(data = data, time = input$time, measure = input$analyte, method ="mom")
+      
+    }
+    
+    if(input$showResult == "lnmom" && input$run){
+      
+      
+      data = momTransformation(data = data, time = input$time, measure = input$analyte, method ="lnmom")
+      
+    }
+    
+    return(data)
+    })
+  
+  
+  dataAnalysis <- reactive({
+    
+    if(input$dataInput==1){
+      dataM()
+      
+      # if((input$showResult == "lnTransformed" || input$showResult == "transformBack") && input$run){
+      #   
+      #    data[,input$analyte] = log(data[,input$analyte])
+      #   
+      # }
+      
+      # if(input$showResult == "cv" && input$run){
+      #   
+      # 
+      # means = tapply(data[,input$analyte], data[,input$subject], mean, na.rm = TRUE)
+      # 
+      # subjects = split(data, data[,input$subject])
+      # 
+      # 
+      # for(i in 1:length(means)){
+      #   
+      #   subjects[[i]][,input$analyte] = subjects[[i]][,input$analyte] / means[i] 
+      #   
+      # }
+      # 
+      # 
+      # data = do.call(rbind.data.frame, subjects)
+      # 
+      # }
+      
+      # if(input$showResult == "mom" && input$run){
+      #   
+      #   
+      #   data = momTransformation(data = data, time = input$time, measure = input$analyte, method ="mom")
+      #   
+      #   
+      # }
+      # 
+      # if(input$showResult == "lnmom" && input$run){
+      #   
+      #   
+      #   data = momTransformation(data = data, time = input$time, measure = input$analyte, method ="lnmom")
+      #   
+      #   
+      # }
+    }
+    
+    else if(input$dataInput==2){
+      
+      if(input$runWideToLong){
+        
+        data = dataWideToLong()
+        
+        if((input$showResult == "lnTransformed" || input$showResult == "transformBack") && input$run){
+          
+          data[,input$analyte] = log(data[,input$analyte])
+          
+        }
+        
+        if(input$showResult == "cv" && input$run){
+          
+          
+          means = tapply(data[,input$analyte], data[,input$subject], mean, na.rm = TRUE)
+          
+          subjects = split(data, data[,input$subject])
+          
+          
+          for(i in 1:length(means)){
+            
+            subjects[[i]][,input$analyte] = subjects[[i]][,input$analyte] / means[i] 
+            
+          }
+          
+          
+          data = do.call(rbind.data.frame, subjects)
+          
+        }
+        
+        if(input$showResult == "mom" && input$run){
+          
+          
+          data = momTransformation(data = data, time = input$time, measure = input$analyte, method ="mom")
+          
+          
+        }
+        
+        if(input$showResult == "lnmom" && input$run){
+          
+          
+          data = momTransformation(data = data, time = input$time, measure = input$analyte, method ="lnmom")
+          
+          
+        }
+      }
+    }
+    
+    
+  })
   
   dataWideToLong <- reactive({
     
@@ -90,23 +234,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  dataAnalysis <- reactive({
-    
-    if(input$dataInput==1){
-      dataM()
-      
-    }
-    
-    else if(input$dataInput==2){
-      
-      if(input$runWideToLong){
-        dataWideToLong()
-        
-      }
-    }
-    
-    
-  })
+
    
   output$RawData <- DT::renderDataTable(
     
@@ -117,11 +245,11 @@ shinyServer(function(input, output, session) {
   
   observe({
     
-    updateSelectInput(session, "analyte", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[5])
-    updateSelectInput(session, "time", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[4])
-    updateSelectInput(session, "replicate", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[3])
-    updateSelectInput(session, "subject", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[1])
-    updateSelectInput(session, "gender", choices = colnames(dataAnalysis()), selected = colnames(dataAnalysis())[2])
+    updateSelectInput(session, "analyte", choices = colnames(dataM()), selected = colnames(dataM())[5])
+    updateSelectInput(session, "time", choices = colnames(dataM()), selected = colnames(dataM())[3])
+    updateSelectInput(session, "replicate", choices = colnames(dataM()), selected = colnames(dataM())[4])
+    updateSelectInput(session, "subject", choices = colnames(dataM()), selected = colnames(dataM())[1])
+    updateSelectInput(session, "gender", choices = colnames(dataM()), selected = colnames(dataM())[2])
     
   })
   
@@ -144,8 +272,12 @@ shinyServer(function(input, output, session) {
   
   outlierResults <- reactive({
     
-    outlier(data=dataAnalysis(), analyte = input$analyte, replicate = input$replicate, time = input$time, gender = input$gender, subject = input$subject, decimal = input$decimal, outlierS1 = input$step1Options, outlierS2 = input$step2Options, outlierS3 = input$step3Options)
-    
+    if(input$run){
+    outlier(data=dataM(), analyte = input$analyte, replicate = input$replicate, time = input$time, 
+            gender = input$gender, subject = input$subject, decimal = input$decimal, outlierS1 = input$step1Options, 
+            outlierS2 = input$step2Options, outlierS3 = input$step3Options,
+            showResult = input$showResult)
+    }
   }) 
   
   dataSetWithoutOutliers <- reactive({
@@ -191,7 +323,7 @@ shinyServer(function(input, output, session) {
   
   normalityResults <- reactive({
     
-    normality(data=dataSetWithoutOutliers(), subject = input$subject, analyte = input$analyte, decimal = input$decimal)
+    normalityNew(data=dataSetWithoutOutliers(), subject = "subject", analyte = "value", decimal = input$decimal, test = input$normalityTest, transformation = FALSE, showResult=input$showResult)
     
   }) 
   
@@ -216,6 +348,35 @@ shinyServer(function(input, output, session) {
   })
   
   
+  ### Steady State ##########
+  
+  
+  steadyStateResult <- reactive({
+    
+    steadyState(data=dataSetWithoutOutliers(), measure = "value", time = "time", 
+                 central = input$steadyStateCenter, decimal = input$decimal, alpha = input$alphaLevel)
+  }) 
+  
+  output$steadyStateRes <- DT::renderDataTable(server = FALSE, {
+    
+    if(input$run){
+      
+      DT::datatable(steadyStateResult(), extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+  })
+  
+  output$steadyStatePlot <- renderPlot({
+    
+    if(input$run){
+      
+      steadyState(data=dataSetWithoutOutliers(), measure = "value", time = "time", 
+                  central = input$steadyStateCenter, decimal = input$decimal, alpha = input$alphaLevel)
+    }
+    
+  })
+  
+  
   ### Subset Analysis ##########
   
   subsetResults <- reactive({
@@ -223,8 +384,34 @@ shinyServer(function(input, output, session) {
     subsetAnalysis(data=dataSetWithoutOutliers(), subject = input$subject, gender = input$gender, analyte = input$analyte, CVresult = input$showResult, decimal = input$decimal)
   }) 
   
+
   
   ### Homogenity ##########
+  
+  ####Bartlett Anaalytical ####
+  
+  output$bartlettAnalytical <- DT::renderDataTable(server = FALSE, {
+    
+    if(input$run){
+      
+      res = homogeneityAnalytical(dataSetWithoutOutliers(), subject = "subject", time = "time", replicate="replicate", alpha = input$alphaLevel, decimal = input$decimal, correction = TRUE, test = input$homogeneityTest)
+      
+      DT::datatable(res, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+  })
+  
+  
+  output$bartlettWithin <- DT::renderDataTable(server = FALSE, {
+    
+    if(input$run){
+      
+      res = homogeneityWithin(dataSetWithoutOutliers(), subject = "subject", time = "time", replicate="replicate", alpha = input$alphaLevel, decimal = input$decimal, correction = TRUE , test = input$homogeneityTest)
+      
+      DT::datatable(res, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+  })
   
   output$homogenity <- DT::renderDataTable(server = FALSE, {
     
@@ -307,9 +494,214 @@ shinyServer(function(input, output, session) {
     
   })
   
+  subsetCVResults <- reactive({
+    
+    aov = analysisOfVarinceResults()
+    
+    
+    ##### CVg Between 
+    
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+      
+      gender1 = aov$resultsOriginalGenderLme1$CVTable[1,c(1,3:5)]
+      gender2 = aov$resultsOriginalGenderLme2$CVTable[1,c(1,3:5)]
+      
+      g1 = aov$resultsOriginalGenderLme1$CVresults[[1]]
+      g2 = aov$resultsOriginalGenderLme2$CVresults[[1]]
+
+    }
+    
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
+      
+      
+      gender1 = aov$resultsCvAnovaGender1$CVTable[1,c(1,3:5)]
+      gender2 = aov$resultsCvAnovaGender2$CVTable[1,c(1,3:5)]
+      
+      g1 = aov$resultsCvAnovaGender1$CVresults[[1]]
+      g2 = aov$resultsCvAnovaGender2$CVresults[[1]]
+    }
+    
+    else if(input$run && input$showResult == "transformBack"){
+      
+      
+      gender1 = aov$resultsTransformBackGenderLnLme1$CVTable[1,c(1,3:5)]
+      gender2 = aov$resultsTransformBackGenderLnLme2$CVTable[1,c(1,3:5)]
+      
+      g1 = aov$resultsTransformBackGenderLnLme1$CVresults[[1]]
+      g2 = aov$resultsTransformBackGenderLnLme2$CVresults[[1]]
+    }
+    
+    
+    genderCVg = rbind.data.frame(gender1,gender2)
+    genderCVg2 = cbind.data.frame(Gender = c(g1,g2), genderCVg)
+    
+    colnames(genderCVg2) = c("Gender","Source", "CV%",  paste0("Lower Limit (",(1-as.numeric(input$alphaLevel))*100,"%)"), paste0("Upper Limit (",(1-as.numeric(input$alphaLevel))*100,"%)"))
+    rownames(genderCVg2) =NULL
+    ci.vals = cbind(genderCVg2[1,4] - genderCVg2[2,5], genderCVg2[1,5]-genderCVg2[2,5], 
+                    genderCVg2[1,5]-genderCVg2[2,4])
+    overlapTest = (ci.vals[,1] > 0 & ci.vals[,2] > 0 & ci.vals[,3] > 0) | (ci.vals[,1] < 0 & ci.vals[,2] < 0 & ci.vals[,3] < 0)
+    
+    resultCVg = ifelse(overlapTest, "Significant Difference", "No Difference")
+    
+    
+    
+    ##### CVi Within
+    
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+      
+      gender1 = aov$resultsOriginalGenderLme1$CVTable[2,c(1,3:5)]
+      gender2 = aov$resultsOriginalGenderLme2$CVTable[2,c(1,3:5)]
+      
+      g1 = aov$resultsOriginalGenderLme1$CVresults[[1]]
+      g2 = aov$resultsOriginalGenderLme2$CVresults[[1]]
+      
+    }
+    
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
+      
+      
+      gender1 = aov$resultsCvAnovaGender1$CVTable[2,c(1,3:5)]
+      gender2 = aov$resultsCvAnovaGender2$CVTable[2,c(1,3:5)]
+      
+      g1 = aov$resultsCvAnovaGender1$CVresults[[1]]
+      g2 = aov$resultsCvAnovaGender2$CVresults[[1]]
+    }
+    
+    else if(input$run && input$showResult == "transformBack"){
+      
+      
+      gender1 = aov$resultsTransformBackGenderLnLme1$CVTable[2,c(1,3:5)]
+      gender2 = aov$resultsTransformBackGenderLnLme2$CVTable[2,c(1,3:5)]
+      
+      g1 = aov$resultsTransformBackGenderLnLme1$CVresults[[1]]
+      g2 = aov$resultsTransformBackGenderLnLme2$CVresults[[1]]
+    }
+    
+    genderCVi = rbind.data.frame(gender1,gender2)
+    genderCVi2 = cbind.data.frame(Gender = c(g1,g2), genderCVi)
+    
+    colnames(genderCVi2) = c("Gender","Source", "CV%",  paste0("Lower Limit (",(1-as.numeric(input$alphaLevel))*100,"%)"), paste0("Upper Limit (",(1-as.numeric(input$alphaLevel))*100,"%)"))
+    rownames(genderCVg2) =NULL
+    
+    ci.vals = cbind(genderCVi2[1,4] - genderCVi2[2,5], genderCVi2[1,5]-genderCVi2[2,5], 
+                    genderCVi2[1,5]-genderCVi2[2,4])
+    overlapTest = (ci.vals[,1] > 0 & ci.vals[,2] > 0 & ci.vals[,3] > 0) | (ci.vals[,1] < 0 & ci.vals[,2] < 0 & ci.vals[,3] < 0)
+    
+    resultCVi = ifelse(overlapTest, "Significant Difference", "No Difference")
+    
+    
+    
+    
+    ##### CVa Analytical
+    
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+      
+      gender1 = aov$resultsOriginalGenderLme1$CVTable[3,c(1,3:5)]
+      gender2 = aov$resultsOriginalGenderLme2$CVTable[3,c(1,3:5)]
+      
+      g1 = aov$resultsOriginalGenderLme1$CVresults[[1]]
+      g2 = aov$resultsOriginalGenderLme2$CVresults[[1]]
+      
+    }
+    
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
+      
+      
+      gender1 = aov$resultsCvAnovaGender1$CVTable[3,c(1,3:5)]
+      gender2 = aov$resultsCvAnovaGender2$CVTable[3,c(1,3:5)]
+      
+      g1 = aov$resultsCvAnovaGender1$CVresults[[1]]
+      g2 = aov$resultsCvAnovaGender2$CVresults[[1]]
+    }
+    
+    else if(input$run && input$showResult == "transformBack"){
+      
+      
+      gender1 = aov$resultsTransformBackGenderLnLme1$CVTable[3,c(1,3:5)]
+      gender2 = aov$resultsTransformBackGenderLnLme2$CVTable[3,c(1,3:5)]
+      
+      g1 = aov$resultsTransformBackGenderLnLme1$CVresults[[1]]
+      g2 = aov$resultsTransformBackGenderLnLme2$CVresults[[1]]
+    }
+    
+    
+    genderCVa = rbind.data.frame(gender1,gender2)
+    genderCVa2 = cbind.data.frame(Gender = c(g1,g2), genderCVa)
+    
+    colnames(genderCVa2) = c("Gender","Source", "CV%",  paste0("Lower Limit (",(1-as.numeric(input$alphaLevel))*100,"%)"), paste0("Upper Limit (",(1-as.numeric(input$alphaLevel))*100,"%)"))
+    rownames(genderCVg2) =NULL
+    
+    ci.vals = cbind(genderCVa2[1,4] - genderCVa2[2,5], genderCVa2[1,5]-genderCVa2[2,5], 
+                    genderCVa2[1,5]-genderCVa2[2,4])
+    overlapTest = (ci.vals[,1] > 0 & ci.vals[,2] > 0 & ci.vals[,3] > 0) | (ci.vals[,1] < 0 & ci.vals[,2] < 0 & ci.vals[,3] < 0)
+    
+    resultCVa = ifelse(overlapTest, "Significant Difference", "No Difference")
+    
+    genderCVg2$Difference = c(resultCVg,NA)
+    genderCVi2$Difference = c(resultCVi,NA)
+    genderCVa2$Difference = c(resultCVa,NA)
+    
+    subsetResult = list(between = genderCVg2, within = genderCVi2, analytical = genderCVa2)
+    
+    return(subsetResult)
+  })
+  
+  
+  
+  output$subsetBetween <- DT::renderDataTable(server = FALSE, {
+    
+    if(input$run){
+      
+      DT::datatable(subsetCVResults()[[1]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+  })
+  
+  output$subsetWithin <- DT::renderDataTable(server = FALSE, {
+    
+    if(input$run){
+      
+      DT::datatable(subsetCVResults()[[2]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+  })
+  
+  output$subsetAnalytical <- DT::renderDataTable(server = FALSE, {
+    
+    if(input$run){
+      
+      DT::datatable(subsetCVResults()[[3]], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+  })
+  
+  
   
   ######### All ##############
-  
+ 
+  output$rcvAll <- DT::renderDataTable(server = FALSE, {
+    
+    res = analysisOfVarinceResults()
+    
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+      
+      result =  DT::datatable(res$resultsAllOriginalLme$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
+      
+      result = DT::datatable(res$resultsAllCvAnova$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    
+    else if(input$run && input$showResult == "transformBack"){
+      
+      result = DT::datatable(res$resultsAllTransformBackLnLme$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    
+  })
+   
   output$CVtableAll <- DT::renderDataTable(server = FALSE, {
     
     res = analysisOfVarinceResults()
@@ -319,7 +711,7 @@ shinyServer(function(input, output, session) {
       result =  DT::datatable(res$resultsAllOriginalLme$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
-    else if(input$run && input$showResult == "cv"){
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
       
       result = DT::datatable(res$resultsAllCvAnova$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
@@ -343,7 +735,7 @@ shinyServer(function(input, output, session) {
       result = DT::datatable(res$resultsAllOriginalLme$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
-    else if(input$run && input$showResult == "cv"){
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
       
       result = DT::datatable(res$resultsAllCvAnova$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
@@ -367,7 +759,7 @@ shinyServer(function(input, output, session) {
     }
     
     
-    else if(input$run && input$showResult == "cv"){
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
       
       result = DT::datatable(res$resultsAllCvAnova$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
@@ -382,6 +774,31 @@ shinyServer(function(input, output, session) {
   ############  Gender1 ###########
   
   
+  output$RCVtableGender1 <- DT::renderDataTable(server = FALSE, {
+    
+    
+    res = analysisOfVarinceResults()
+    
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+      
+      result = DT::datatable(res$resultsOriginalGenderLme1$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
+      
+      result = DT::datatable(res$resultsCvAnovaGender1$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    else if(input$run && input$showResult == "transformBack"){
+      
+      result = DT::datatable(res$resultsTransformBackGenderLnLme1$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    
+  })
+  
+  
   
   output$CVtableGender1 <- DT::renderDataTable(server = FALSE, {
     
@@ -394,7 +811,7 @@ shinyServer(function(input, output, session) {
       }
       
       
-      else if(input$run && input$showResult == "cv"){
+      else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
         result = DT::datatable(res$resultsCvAnovaGender1$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
@@ -419,7 +836,7 @@ shinyServer(function(input, output, session) {
       }
       
       
-      else if(input$run && input$showResult == "cv"){
+      else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
         result = DT::datatable(res$resultsCvAnovaGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
@@ -446,7 +863,7 @@ shinyServer(function(input, output, session) {
         result = DT::datatable(res$resultsOriginalGenderLme1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
-      else if(input$run && input$showResult == "cv"){
+      else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
         result = DT::datatable(res$resultsCvAnovaGender1$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
@@ -466,7 +883,29 @@ shinyServer(function(input, output, session) {
   
   ############  Gender 2 ###########
   
-  
+  output$RCVtableGender2 <- DT::renderDataTable(server = FALSE, {
+    
+    
+    res = analysisOfVarinceResults()
+    
+    if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
+      
+      result = DT::datatable(res$resultsOriginalGenderLme2$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    
+    else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
+      
+      result = DT::datatable(res$resultsCvAnovaGender2$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    else if(input$run && input$showResult == "transformBack"){
+      
+      result = DT::datatable(res$resultsTransformBackGenderLnLme2$rcvResult, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+    }
+    
+    
+  })
   
   output$CVtableGender2 <- DT::renderDataTable(server = FALSE, {
     
@@ -479,7 +918,7 @@ shinyServer(function(input, output, session) {
       }
       
       
-      else if(input$run && input$showResult == "cv"){
+      else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
 
         result = DT::datatable(res$resultsCvAnovaGender2$CVTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
@@ -506,7 +945,7 @@ shinyServer(function(input, output, session) {
       
       
       
-      else if(input$run && input$showResult == "cv"){
+      else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
         result = DT::datatable(res$resultsCvAnovaGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
@@ -533,7 +972,7 @@ shinyServer(function(input, output, session) {
         result =  DT::datatable(res$resultsOriginalGenderLme2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
-      else if(input$run && input$showResult == "cv"){
+      else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
         result = DT::datatable(res$resultsCvAnovaGender2$errorTable, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
@@ -602,15 +1041,55 @@ shinyServer(function(input, output, session) {
     
   })
   
+  output$steadyStateResText <- renderText({
+    
+    if (input$run){
+      "Linear Regression Result"
+    }
+    
+  })
+  
+  output$steadyStatePlotText <- renderText({
+    
+    if (input$run){
+      "Regression Plot"
+    }
+    
+  })
+  
+  output$subsetTitleStepBetween <- renderText({
+    
+    if (input$run){
+      "Table 1: Gender comparison for between-subject variation"
+    }
+    
+  })
+  
+  output$subsetTitleStepWithin <- renderText({
+    
+    if (input$run){
+      "Table 2: Gender comparison for within-subject variation"
+    }
+    
+  })
+  
+  output$subsetTitleStepAnalytical <- renderText({
+    
+    if (input$run){
+      "Table 3: Gender comparison for analytical variation"
+    }
+    
+  })
+  
   
   output$subsetTitleStep1 <- renderText({
     
     if(input$run && input$subgroupTest == "ttest"){
-      "Table 1: Student's t test for mean differences of gender groups"
+      "Table 4: Student's t test for mean differences of gender groups"
     }
     
     else if(input$run && input$subgroupTest == "mw"){
-      "Table 1: Mann-Whitney U test to test differences between gender groups"
+      "Table 4: Mann-Whitney U test to test differences between gender groups"
     }
     
   })
@@ -619,7 +1098,7 @@ shinyServer(function(input, output, session) {
   output$subsetTitleStep2 <- renderText({
     
     if (input$run){
-      "Table 2: F test for average within-subject total variance"
+      "Table 5: F test for average within-subject total variance"
     }
     
   })
@@ -627,7 +1106,7 @@ shinyServer(function(input, output, session) {
   output$subsetTitleStep3 <- renderText({
     
     if (input$run){
-      "Table 3: Homogeneity test for mean values of gender groups"
+      "Table 6: Homogeneity test for mean values of gender groups"
     }
     
   })
@@ -635,7 +1114,16 @@ shinyServer(function(input, output, session) {
   output$subsetTitleStep4 <- renderText({
     
     if (input$run){
-      "Table 4: Homogeneity test for average within-subject total variance"
+      "Table 7: Homogeneity test for average within-subject total variance"
+    }
+    
+  })
+  
+  
+  output$RCVTitleAllStep1 <- renderText({
+    
+    if (input$run){
+      "Table 1: Reference Change Values (RCV) Results"
     }
     
   })
@@ -644,7 +1132,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleAllStep1 <- renderText({
     
     if (input$run){
-      "Step 1: Coefficient of Variation Results"
+      "Table 2: Coefficient of Variation Results"
     }
     
   })
@@ -653,7 +1141,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleAllStep2 <- renderText({
     
     if (input$run){
-      "Step 2: Analysis of Variance Table"
+      "Table 3: Analysis of Variance Table"
     }
     
   })
@@ -662,19 +1150,26 @@ shinyServer(function(input, output, session) {
   output$anovaTitleAllStep3 <- renderText({
     
     if (input$run){
-      "Step 3: Quality Measures"
+      "Table 4: Quality Measures"
     }
     
   })
   
   
   
+  output$RCVTitleGender1Step1 <- renderText({
+    
+    if (input$run){
+      "Table 1: Reference Change Values (RCV) Results"
+    }
+    
+  })
   
   
   output$anovaTitleGender1Step1 <- renderText({
     
     if (input$run){
-      "Step 1: Coefficient of Variation Results"
+      "Table 2: Coefficient of Variation Results"
     }
     
   })
@@ -683,7 +1178,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender1Step2 <- renderText({
     
     if (input$run){
-      "Step 2: Analysis of Variance Table"
+      "Table 3: Analysis of Variance Table"
     }
     
   })
@@ -692,17 +1187,26 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender1Step3 <- renderText({
     
     if (input$run){
-      "Step 3: Quality Measures"
+      "Table 4: Quality Measures"
     }
     
   })
   
   
   
+  output$RCVTitleGender2Step1 <- renderText({
+    
+    if (input$run){
+      "Table 1: Reference Change Values (RCV) Results"
+    }
+    
+  })
+  
+  
   output$anovaTitleGender2Step1 <- renderText({
     
     if (input$run){
-      "Step 1: Coefficient of Variation Results"
+      "Table 2: Coefficient of Variation Results"
     }
     
   })
@@ -711,7 +1215,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender2Step2 <- renderText({
     
     if (input$run){
-      "Step 2: Analysis of Variance Table"
+      "Table 3: Analysis of Variance Table"
     }
     
   })
@@ -720,7 +1224,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender2Step3 <- renderText({
     
     if (input$run){
-      "Step 3: Quality Measures"
+      "Table 4: Quality Measures"
     }
     
   })
@@ -758,6 +1262,23 @@ shinyServer(function(input, output, session) {
     }
     
   })
+  
+  output$bartlettAnalyticalText <- renderText({
+    
+    if (input$run){
+      "Table 1: Homogeneity of analytical variability"
+    }
+    
+  })
+  
+  output$bartlettwithinText <- renderText({
+    
+    if (input$run){
+      "Table 2: Homogeneity of within-subject variability"
+    }
+    
+  })
+  
   ############## Plots ##################
   
   ####### Step 0 #######

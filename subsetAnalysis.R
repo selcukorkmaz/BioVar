@@ -1,5 +1,7 @@
-# data = dataWithoutOutliers; subject = "subject"; gender = "Gender"; analyte = "value"; CVresult = "original"
+
 # 
+# colnames(data) = c("subject", "gender", "time", "replicate", "value")
+
 # subset(data, subject, gender, analyte, CVresult = "original")
 
 subsetAnalysis <- function(data, subject = "subject", gender = "gender", analyte, CVresult = "original", decimal){      
@@ -33,6 +35,7 @@ subsetAnalysis <- function(data, subject = "subject", gender = "gender", analyte
   
   dataTtest = cbind.data.frame(gender2, means)
   
+  if(CVresult != "cv"){
   
   bartlet = bartlett.test(dataTtest$means, dataTtest[, "gender"])
   
@@ -68,7 +71,7 @@ subsetAnalysis <- function(data, subject = "subject", gender = "gender", analyte
   
   
   mwtest = wilcox.test(as.formula(paste0("means~","gender")), data = dataTtest)
-  median = tapply(dataTtest[,"means"], dataTtest[,"gender"], median)
+  median = tapply(dataTtest[,"means"], dataTtest[,"gender"], median, na.rm=TRUE)
   q = tapply(dataTtest[,"means"], dataTtest[,"gender"], quantile, type = 6)
   iqr1 = round(q[[genderLevels[1]]][4] - q[[genderLevels[1]]][2],decimal)
   iqr2 = round(q[[genderLevels[2]]][4] - q[[genderLevels[2]]][2],decimal)
@@ -86,7 +89,13 @@ subsetAnalysis <- function(data, subject = "subject", gender = "gender", analyte
   mwtestResult[1,7] = ifelse(mwtest$p.value > 0.05,"No difference","Different")
   
   # if(mwtestResult[1,6] == 0){mwtestResult[1,6] = "<0.05"} 
-  
+  }else{
+    
+    HomogenityGenderResult = NULL
+    ttestResult = NULL
+    mwtestResult = NULL
+    
+  }
   
   if(is.null(data$value)){
     dataHomogenity2 = data[,c("subject", analyte, "gender")]

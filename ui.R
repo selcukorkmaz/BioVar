@@ -22,17 +22,22 @@ shinyUI(pageWithSidebar(
 
                      # selectInput(inputId = "method", label = "Analysis method", multiple = FALSE, choices = c("CV-ANOVA" = "cvAnova", "ANOVA" = "lme"), selected = "lme"),
 
-                     selectInput(inputId = "showResult", label = "Choose a calculation method", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "lnTransformed", "Transform back to original" = "transformBack", "CV" = "cv"), selected = "original"),
+                     selectInput(inputId = "showResult", label = "Choose a calculation method", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "lnTransformed", "Transform back to original" = "transformBack", "CV" = "cv", "MoM" = "mom", "lnMoM" = "lnmom"), selected = "original"),
                      
                      checkboxInput(inputId = "advancedOptions", label = "Advanced Options", value = FALSE),
                      
                      conditionalPanel(condition = "input.advancedOptions",
-                                      
+                         
+                         # checkboxInput(inputId = "logTransform", label = "Apply log transformation", value = FALSE), 
+                         selectInput(inputId = "normalityTest", label = "Select normality test", multiple = FALSE, choices = c("Shapiro-Wilk" = "sw", "Anderson-Darling" = "ad" ), selected = "sw"),
+                         selectInput(inputId = "steadyStateCenter", label = "Select central tendency measure for steady state", multiple = FALSE, choices = c("Median" = "median", "Mean" = "mean" ), selected = "mean"),
+                         selectInput(inputId = "homogeneityTest", label = "Select a homogeneity test", multiple = FALSE, choices = c("Bartlett" = "bartlett", "Cochran" = "cochran" ), selected = "bartlett"),
+                         
+                         
                          checkboxInput(inputId = "outlierOptions", label = "Options for outliers", value = FALSE),
                                       
                               conditionalPanel(condition = "input.outlierOptions",
-                                               
-                                               radioButtons("step1Options",  "Remove outliers at step 1", choices = c("Remove outlying subjects" = "subjects",  "Remove outlying replicates" = "replicates", "Do not remove any outliers" = "none" )),
+                                               radioButtons("step1Options", "Remove outlying replicates at step 1", choices = c("Remove replicates" = "replicates", "Do not remove replicates" = "none" ), selected = "replicates"),
                                                checkboxInput("step2Options", "Remove outlying subjects at step 2", TRUE),
                                                checkboxInput("step3Options", "Remove outlying subjects at step 3", TRUE)
                                                
@@ -188,19 +193,51 @@ of the results from each subject and  (iii) outliers in the variances of the res
                    
                ),
                
-               tabPanel('Subset', 
+               tabPanel('Steady State', 
                         
+                        h4(textOutput(outputId = "steadyStateResText")),
+                        DT::dataTableOutput("steadyStateRes"),
+                        HTML("<br>"),
+                        HTML("<br>"),
+                        h4(textOutput(outputId = "steadyStatePlotText")),
+                        shiny::plotOutput("steadyStatePlot")
+                        
+               ),
+               
+               
+               tabPanel('Homogeneity', 
+                        
+                        h4(textOutput(outputId = "bartlettAnalyticalText")),
+                        DT::dataTableOutput("bartlettAnalytical"),     
+                        
+                        h4(textOutput(outputId = "bartlettwithinText")),
+                        DT::dataTableOutput("bartlettWithin")
+                        
+               ),
+               
+               
+               tabPanel('Subset', 
+
+                  h4(textOutput(outputId = "subsetTitleStepBetween")),
+                  DT::dataTableOutput("subsetBetween"),     
+                  
+                  h4(textOutput(outputId = "subsetTitleStepWithin")),
+                  DT::dataTableOutput("subsetWithin"),     
+                  
+                  h4(textOutput(outputId = "subsetTitleStepAnalytical")),
+                  DT::dataTableOutput("subsetAnalytical"),     
+                                                
                    h4(textOutput(outputId = "subsetTitleStep1")),
-                   DT::dataTableOutput("ttest"),
-                   
-                   h4(textOutput(outputId = "subsetTitleStep2")),
-                   DT::dataTableOutput("ttestSIA"),
-                   
-                   h4(textOutput(outputId = "subsetTitleStep3")),
-                   DT::dataTableOutput("homogenity"),
-                   
-                   h4(textOutput(outputId = "subsetTitleStep4")),
-                   DT::dataTableOutput("homogenitySIA")
+                   DT::dataTableOutput("ttest")
+                   # 
+                   # h4(textOutput(outputId = "subsetTitleStep2")),
+                   # DT::dataTableOutput("ttestSIA"),
+                   # 
+                   # h4(textOutput(outputId = "subsetTitleStep3")),
+                   # DT::dataTableOutput("homogenity"),
+                   # 
+                   # h4(textOutput(outputId = "subsetTitleStep4")),
+                   # DT::dataTableOutput("homogenitySIA")
                
                ),
                
@@ -211,7 +248,9 @@ of the results from each subject and  (iii) outliers in the variances of the res
                         
                     tabPanel('All Subjects',       
                          
-                             
+                    h4(textOutput(outputId = "RCVTitleAllStep1")),
+                    DT::dataTableOutput("rcvAll"), 
+                    
                     h4(textOutput(outputId = "anovaTitleAllStep1")),
                     DT::dataTableOutput("CVResultsAll"),         
                               
@@ -226,6 +265,9 @@ of the results from each subject and  (iii) outliers in the variances of the res
                   
                   tabPanel('Subgroup 1', 
                            
+                       h4(textOutput(outputId = "RCVTitleGender1Step1")),
+                       DT::dataTableOutput("RCVtableGender1"),       
+                       
                        h4(textOutput(outputId = "anovaTitleGender1Step1")),
                        DT::dataTableOutput("CVResultsGender1"),
                            
@@ -238,7 +280,11 @@ of the results from each subject and  (iii) outliers in the variances of the res
                   ),
                   
                   tabPanel('Subgroup 2', 
-              
+                           
+                           
+                   h4(textOutput(outputId = "RCVTitleGender2Step1")),
+                   DT::dataTableOutput("RCVtableGender2"),        
+                   
                    h4(textOutput(outputId = "anovaTitleGender2Step1")),
                    DT::dataTableOutput("CVResultsGender2"),
                            

@@ -1,4 +1,7 @@
-outlier <- function(data, analyte, subject, replicate, time, gender, decimal, outlierS1 = "subjetcs", outlierS2 = TRUE, outlierS3 = TRUE){
+
+outlier <- function(data, analyte, subject, replicate, time, gender, decimal, 
+                    outlierS1 = "replicates", outlierS2 = TRUE, outlierS3 = TRUE, 
+                    showResult){
       
   
   data$replicate.subject = as.numeric(paste0(data[,replicate], data[,subject]))
@@ -11,7 +14,10 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
   
   dataFull = dataFull[complete.cases(dataFull),]
   table(dataFull$value <=0)
-  dataFull[dataFull$value <=0,"value"] = NA
+  
+   # if(!(showResult == "mom" || showResult == "lnmom")){
+   #   dataFull[dataFull$value <=0,"value"] = NA
+   # }
   
   dataFull = dataFull[complete.cases(dataFull),]
   head(dataFull)
@@ -77,17 +83,58 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
       data = dataFull[dataFull[,subject] == s[i],]
       data = data[complete.cases(data),]
       
-      rep1 = data[data$replicate.subject == unique(data$replicate.subject)[1],"value"]
-      rep2 = data[data$replicate.subject == unique(data$replicate.subject)[2],"value"]
+      sData = split(data, data[,time])
+      repList = list()
       
-      repData = cbind.data.frame(rep1,rep2)
+      for(d in 1:length(sData)){
+        
+        tmp = sData[[d]]
+        r1=NA
+        r2=NA
+        
+        if(nrow(tmp) == 2){
+          r1 = tmp[1,"value"]
+          r2 = tmp[2,"value"]
+          
+        }
+        
+        if(nrow(tmp) == 1){
+          
+          if(tmp[,time][1] == 1){
+            
+            r1 = tmp[1,"value"]
+            r2=NA
+          
+          }
+          
+          if(tmp[,time][1] == 2){
+            
+            r2 = tmp[1,"value"]
+            r1=NA
+            }
+          
+          
+        }
+        
+        repList[[d]] = cbind.data.frame(rep1 = r1, rep2 = r2)
+
+      }
+      
+      repData = do.call(rbind.data.frame, repList)
+      
+      # rep1 = data[data$replicate.subject == unique(data$replicate.subject)[1],"value"]
+      # rep2 = data[data$replicate.subject == unique(data$replicate.subject)[2],"value"]
+      # 
+      # repData = cbind.data.frame(rep1,rep2)
       
       repVar = apply(repData, 1, var)
       
       # subject = rep(i, length(rep1))
-      subject_time = paste0(rep(s[i], length(rep1)), unique(data[,time]))
+      subject_time = paste0(rep(s[i], nrow(repData)), unique(data[,time]))
       
-      reps = cbind.data.frame(subject = rep(dataFull[dataFull[,subject] == s[i],subject][[1]], length(subject_time)), time = unique(data[,time]),subject_time, rep1, rep2, var = repVar)
+      reps = cbind.data.frame(subject = rep(dataFull[dataFull[,subject] == s[i],subject][[1]], 
+                                            length(subject_time)), time = unique(data[,time]),subject_time, 
+                              repData$rep1, repData$rep2, var = repVar)
       
       dataList[[i]] = reps
       
@@ -102,8 +149,8 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
     vars = dataNew$var
     names(vars) = paste0(dataNew$subject, dataNew$time)
     
-    if(sum(vars) > 0){
-      value <- max(vars)/sum(vars)
+    if(sum(vars, na.rm=TRUE) > 0){
+      value <- max(vars, na.rm=TRUE)/sum(vars, na.rm=TRUE)
     }else{
       
       value = 0
@@ -141,23 +188,23 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
     outlierStep1$var = round(outlierStep1$var, decimal)
   }
   
-  if(outlierS1 == "none"){
-    
-    dataFull = dataOrg
-    
-  }
-  
-  if(outlierS1 == "replicates"){
+   if(outlierS1 == "replicates"){
     
     dataFull = dataOrg[!(rownames(dataOrg) %in% rownames(dataOrg[dataOrg[,"subject_time"] %in% outlierStep1[,c("subject_time")],])), ]
     
+   }else{
+    
+     dataFull = dataOrg
+    
   }
   
-  if(outlierS1 == "subjects"){
-    
-    dataFull = dataFull[!(rownames(dataFull) %in% rownames(dataFull[dataFull[,subject] %in% outlierStep1[,"subject"],])), ]
-    
-  }
+
+  
+  # if(outlierS1 == "subjects"){
+  #   
+  #   dataFull = dataFull[!(rownames(dataFull) %in% rownames(dataFull[dataFull[,subject] %in% outlierStep1[,"subject"],])), ]
+  #   
+  # }
 
   
   ### STEP 2 ####
@@ -171,6 +218,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
   while(value > criticalValue){
     
     vars =  tapply(dataFull2$value, as.factor(dataFull2[,subject]), var)
+    vars <- vars[!is.na(vars) & !is.infinite(vars)]
     namesVars = names(vars)
     
     splitData = split(dataFull2, as.factor(dataFull2[,subject]))
@@ -186,10 +234,23 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
     subjectNumber = length(vars)
     df = length(unique(dataFull2[,time]))-1
     
-    value <- max(vars)/sum(vars)
+    value <- max(vars, na.rm=TRUE)/sum(vars, na.rm=TRUE)
     
     criticalValue = prospectr:::Cul(0.05, df, subjectNumber)
     
+    if(!is.numeric(criticalValue)){stop("criticalValue not numeric, not exist")}
+    if(!is.numeric(value)){stop("value not numeric, not exist")}
+   
+    print(head(dataFull2))
+    print(tail(dataFull2))
+    print(nrow(dataFull2))
+    print(ncol(dataFull2))
+    
+     print(paste0("value: ",value))
+    print(paste0("criticalValue: ", criticalValue))
+    print(paste0("df: ", df))
+    print(paste0("subjectNumber: ", subjectNumber))
+    print(dataFull2[time])
     
     if(value > criticalValue){
       
@@ -247,7 +308,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
   maxDifference = 1
   absoluteDifference = 1
 
-  while(maxDifference > absoluteDifference/3 && length(means) > 0){
+  
     outlierListReed = list()
     
     
@@ -303,7 +364,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
       dataReed = dataReed
       
     }
-  }
+  
   
   cat("\n------------------------------------","\nStep 3 is succesfully completed. All outliers found and removed from dataset.","\n------------------------------------")
   
@@ -330,7 +391,7 @@ outlier <- function(data, analyte, subject, replicate, time, gender, decimal, ou
     names(outlierStep2) = c("Subject", "Gender", "Time", "Replicate", analyte, "Variance", "Ratio of maximum individual variance to the sum of individual variances", "Critical value")
     rownames(outlierStep2) = NULL
     
-    outlierStep2 = outlierStep2[, c(1,2,6:8)]
+    outlierStep2 = outlierStep2[, c(1,2,7:8)]
     outlierStep2 = unique(outlierStep2)
     
   }else{
