@@ -34,7 +34,7 @@ shinyServer(function(input, output, session) {
   if(input$selectData==2){  ## Example data
     
 
-      data <- read.table("example_data.txt", header=TRUE)
+      data <- read.table("www/data/example_data.txt", header=TRUE)
       
 
   }
