@@ -18,16 +18,16 @@ shinyUI(pageWithSidebar(
                      selectInput(inputId = "replicate", label = "Replicate", multiple = FALSE, choices = NULL, selected = NULL),
               
                       # checkboxInput("subsetAnalysis", "Subset Analysis", value = TRUE),
-                     selectInput(inputId = "subgroupTest", label = "Select subgroup test", multiple = FALSE, choices = c("Student's t" = "ttest", "Mann-Whitney U" = "mw")),
 
                      # selectInput(inputId = "method", label = "Analysis method", multiple = FALSE, choices = c("CV-ANOVA" = "cvAnova", "ANOVA" = "lme"), selected = "lme"),
 
-                     selectInput(inputId = "showResult", label = "Choose a calculation method", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "lnTransformed", "Transform back to original" = "transformBack", "CV" = "cv", "MoM" = "mom", "lnMoM" = "lnmom"), selected = "original"),
+                     selectInput(inputId = "showResult", label = " Choose calculation data", multiple = FALSE, choices = c("Original" = "original", "Log-transformed" = "lnTransformed", "Transform back to original" = "transformBack", "CV-ANOVA" = "cv", "MoM" = "mom", "lnMoM" = "lnmom"), selected = "original"),
                      
                      checkboxInput(inputId = "advancedOptions", label = "Advanced Options", value = FALSE),
                      
                      conditionalPanel(condition = "input.advancedOptions",
-                         
+                          selectInput(inputId = "subgroupTest", label = "Select subgroup test", multiple = FALSE, choices = c("Student's t" = "ttest", "Mann-Whitney U" = "mw")),
+                                      
                          # checkboxInput(inputId = "logTransform", label = "Apply log transformation", value = FALSE), 
                          selectInput(inputId = "normalityTest", label = "Select normality test", multiple = FALSE, choices = c("Shapiro-Wilk" = "sw", "Anderson-Darling" = "ad" ), selected = "sw"),
                          selectInput(inputId = "steadyStateCenter", label = "Select central tendency measure for steady state", multiple = FALSE, choices = c("Median" = "median", "Mean" = "mean" ), selected = "mean"),
@@ -137,22 +137,16 @@ shinyUI(pageWithSidebar(
                
                h4("Analyze biological variation for analytes!"),
                
-          HTML('<p> In this tool, the biological analytes will be analyzed by the pipeline provided by Braga and Panteghini [1].</p>'),
+          HTML('<p> The steps of analyzing the BV data can be simply divided into seven steps: (i) detecting outliers, (ii) controlling normality assumption, (iii) checking steady-state condition, (iv) checking homogeneity assumptions, (v) performing subset analysis for genders, (vi) performing analysis of variance and (vii) identifying analytical performance specifications.</p>'),
           
-          HTML('The tool includes 3 different outlier detection steps: (i) outliers in the sets of duplicate results, (ii) outliers in the variances 
-of the results from each subject and  (iii) outliers in the variances of the results from each subject.</p>'),
-          
-          HTML('Normality tests will be performed using Shapiro-Wilk and Kolmogorov-Smirnov tests in two steps: (i) on set of results from each individual, (ii) on mean values of subjects. </p>'),
-
-          HTML('Subset analysis will be performed to compare (i) means and (i) average within-subject total variances of gender groups.</p>'),
-          
-          HTML('Analysis of variance or linear mixed effects models will be performed to obtain coefficient of variation results, ANOVA table and quality measures for all subjects, 
-              males and females separately. For further details please see Braga and Panteghini [1].</p>'),
-
+          HTML('This online tool can perform statistical analysis for the BV data based on guideline by Bartlett et al. [1], the pipeline by Braga and Panteghini [2] and the updated checklist by Aarsand et al. [3].</p>'),
 
           HTML('<left><img src="intro/intro1.png" width = "50%"></left><left><img src="intro/intro3.png" width = "50%"></left>'),
           
-          h6("[1] Braga, F., & Panteghini, M. (2016). Generation of data on within-subject biological variation in laboratory medicine: an update. Critical reviews in clinical laboratory sciences, 53(5), 313-325.")
+          
+          h6("[1] Bartlett WA, Braga F, Carobene A, Coskun A, Prusa R, et al. A checklist for critical appraisal of studies of biological variation. Clin Chem Lab Med 2015; 53(6):879-85."),
+          h6("[2] Braga, F., & Panteghini, M. (2016). Generation of data on within-subject biological variation in laboratory medicine: an update. Critical reviews in clinical laboratory sciences, 53(5), 313-325."),
+          h6("[3] Aarsand AK, Roraas T, Fernandez-Calle P, Ricos C, Diaz-Garzon J, et al. The biological variation data critical appraisal checklist: a standard for evaluating studies on biological variation. Clin Chem 2018; 64(3):501-14.")
                
       ),
       
@@ -343,8 +337,10 @@ of the results from each subject and  (iii) outliers in the variances of the res
                HTML('<center><img src="manual/dataUploadWide.png" width = "100%"></center>'),
                
                br(),
-               HTML('<p> <b>2. After uploading appropriate dataset, move on to the <em>Analysis</em> tab. Select <em>analyte</em>, <em>subject</em>, <em>gender</em>, <em>time</em> and <em>replicate</em> variables. Check <em>Subset Analysis</em> box to perform analysis for gender groups. Choose an analysis method either <em>ANOVA</em> or <em>LME</em>. Select desired output as <em>Original</em>, <em>Log-transformed</em> or <em>Back log-transformed</em>.</b>  </p>'),
-               HTML('<p><b>(i) get outlier results:</b></p>'),
+               HTML('<p> <b>2. After uploading appropriate dataset, move on to the <em>Analysis</em> tab. 
+                    Select <em>analyte</em>, <em>subject</em>, <em>gender</em>, <em>time</em> and <em>replicate</em> variables. 
+                    Choose a calculation data based on original or transformation including <em>Log-transformed</em>, <em>CV-ANOVA</em>, <em>MoM</em> and <em>lnMoM</em>.'),
+               HTML('<p><b>(i) get outlier results for:</b></p>'),
                HTML('<center><img src="manual/outliers.png" width = "100%"></center>'),
                
                br(),
@@ -352,36 +348,37 @@ of the results from each subject and  (iii) outliers in the variances of the res
                HTML('<center><img src="manual/normality.png" width = "100%"></center>'),
                
                br(),
-               HTML('<p><b>(iii) get subset analysis results:</b></p>'),
+               HTML('<p><b>(iii) get steady-state results:</b></p>'),
+               HTML('<center><img src="manual/steadystate.png" width = "100%"></center>'),
+               
+               
+               br(),
+               HTML('<p><b>(iv) get homogeneity results:</b></p>'),
+               HTML('<center><img src="manual/homogeneity.png" width = "100%"></center>'),
+               
+               
+               br(),
+               HTML('<p><b>(v) get subset analysis results:</b></p>'),
                HTML('<center><img src="manual/subset.png" width = "100%"></center>'),
                
                br(),
-               HTML('<p><b>(iv) get subset ANOVA results for all subjects:</b></p>'),
+               HTML('<p><b>(vi) get ANOVA, RCV and II results for all subjects:</b></p>'),
                HTML('<center><img src="manual/anovaAll.png" width = "100%"></center>'),
 
                br(),
-               HTML('<p><b>(v) get subset ANOVA results for the first gender group:</b></p>'),
+               HTML('<p><b>(vii) get ANOVA, RCV and II results for females:</b></p>'),
                HTML('<center><img src="manual/anovaGender1.png" width = "100%"></center>'),
                
                br(),
-               HTML('<p><b>(vi) get subset ANOVA results for the second gender group:</b></p>'),
+               HTML('<p><b>(viii) get ANOVA, RCV and II results for males:</b></p>'),
                HTML('<center><img src="manual/anovaGender2.png" width = "100%"></center>'),
                
                br(),
-               HTML('<p><b>(vii) get plots:</b></p>'),
+               HTML('<p><b>(ix) get plots:</b></p>'),
                HTML('<center><img src="manual/plots1.png" width = "100%"></center>'),
                
                br(),
-               HTML('<center><img src="manual/plots2.png" width = "100%"></center>'),
-               
-               br(),
-               HTML('<center><img src="manual/plots3.png" width = "100%"></center>'),
-               
-               br(),
-               HTML('<center><img src="manual/plots4.png" width = "100%"></center>'),
-
-               br(),
-               HTML('<p><b>(viii) generate and download the report for the analyte to be analyzed:</b></p>'),
+               HTML('<p><b>(x) generate and download the report for the analyte to be analyzed:</b></p>'),
                HTML('<center><img src="manual/report.png" width = "100%"></center>')
                
       ),

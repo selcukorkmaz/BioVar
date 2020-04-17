@@ -388,7 +388,7 @@ shinyServer(function(input, output, session) {
   
   ### Homogenity ##########
   
-  ####Bartlett Anaalytical ####
+  ####Bartlett Analytical ####
   
   output$bartlettAnalytical <- DT::renderDataTable(server = FALSE, {
     
@@ -732,17 +732,18 @@ shinyServer(function(input, output, session) {
     
     if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
       
-      result = DT::datatable(res$resultsAllOriginalLme$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllOriginalLme$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      
     }
     
     else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
       
-      result = DT::datatable(res$resultsAllCvAnova$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllCvAnova$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     else if(input$run  && input$showResult == "transformBack"){
       
-      result = DT::datatable(res$resultsAllTransformBackLnLme$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+      result = DT::datatable(res$resultsAllTransformBackLnLme$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
     }
     
     
@@ -832,18 +833,18 @@ shinyServer(function(input, output, session) {
      if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
         
         
-        result = DT::datatable(res$resultsOriginalGenderLme1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsOriginalGenderLme1$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
-        result = DT::datatable(res$resultsCvAnovaGender1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsCvAnovaGender1$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       else if(input$run && input$showResult == "transformBack"){
         
-        result = DT::datatable(res$resultsTransformBackGenderLnLme1$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGenderLnLme1$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
     
@@ -940,20 +941,20 @@ shinyServer(function(input, output, session) {
       
      if(input$run && (input$showResult == "original" || input$showResult == "lnTransformed")){
         
-        result =   DT::datatable(res$resultsOriginalGenderLme2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result =   DT::datatable(res$resultsOriginalGenderLme2$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
       
       
       else if(input$run && (input$showResult == "cv" || input$showResult == "mom"  || input$showResult == "lnmom")){
         
-        result = DT::datatable(res$resultsCvAnovaGender2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsCvAnovaGender2$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
 
       else if(input$run && input$showResult == "transformBack"){
         
-        result = DT::datatable(res$resultsTransformBackGenderLnLme2$CVresults, extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
+        result = DT::datatable(res$resultsTransformBackGenderLnLme2$CVresults[c(1:4,8,9)], extensions = c('Buttons','KeyTable', 'Responsive'), options = list(           dom = 'Bfrtip',buttons = list('copy', 'print', list(extend = 'collection',           buttons = c('csv', 'excel', 'pdf'),text = 'Download')), keys = TRUE))
       }
       
     
@@ -1002,7 +1003,7 @@ shinyServer(function(input, output, session) {
   output$outlierTitleStep1 <- renderText({
     
     if (input$run){
-      "Step 1: Outliers in the sets of duplicate results using the Cochran test"
+      "Step 1: Outliers in the sets of replicate results using the Cochran test"
     }
     
   })
@@ -1132,7 +1133,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleAllStep1 <- renderText({
     
     if (input$run){
-      "Table 2: Coefficient of Variation Results"
+      "Table 2: Mean and CI of the measurand, index of individuality (II) and the number of samples (n)"
     }
     
   })
@@ -1150,7 +1151,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleAllStep3 <- renderText({
     
     if (input$run){
-      "Table 4: Quality Measures"
+      "Table 4: Analytical Performance Specifications "
     }
     
   })
@@ -1169,7 +1170,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender1Step1 <- renderText({
     
     if (input$run){
-      "Table 2: Coefficient of Variation Results"
+      "Table 2: Mean and CI of the measurand, index of individuality (II) and the number of samples (n)"
     }
     
   })
@@ -1187,7 +1188,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender1Step3 <- renderText({
     
     if (input$run){
-      "Table 4: Quality Measures"
+      "Table 4: Analytical Performance Specifications "
     }
     
   })
@@ -1206,7 +1207,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender2Step1 <- renderText({
     
     if (input$run){
-      "Table 2: Coefficient of Variation Results"
+      "Table 2: Mean and CI of the measurand, index of individuality (II) and the number of samples (n)"
     }
     
   })
@@ -1224,7 +1225,7 @@ shinyServer(function(input, output, session) {
   output$anovaTitleGender2Step3 <- renderText({
     
     if (input$run){
-      "Table 4: Quality Measures"
+      "Table 4: Analytical Performance Specifications "
     }
     
   })
